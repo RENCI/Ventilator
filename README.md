@@ -12,8 +12,13 @@ The user interface is implemented with a Django website that utilize ventilator 
 
 ### Installation:
 
-Perquisites:
+System controller 
+* Raspberry Pi 4 (4GB memory, 64GB SDHC)
+* Raspberry 7" TFT monitor (optional)
+
+Software perquisites:
+* Raspian O/S
 * Python3.8
 * Django >= 3
-* django-cors-headers
+
 
