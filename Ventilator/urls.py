@@ -20,6 +20,7 @@ from django.contrib import admin
 from django.urls import path
 
 urlpatterns = [
+    path('', app_views.index, name='index'),
     path('admin/', admin.site.urls),
     url(r'^index', app_views.index, name='index'),
 ]
