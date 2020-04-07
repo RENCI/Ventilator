@@ -1,0 +1,55 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+	<head>
+	  <meta charset="utf-8">
+	  
+	  	<title>{% block title %}{% endblock %}</title>
+			
+		<link rel="shortcut icon" href="{% static 'RENCI_Ventilator/favicon.png' %}" type="image/png">
+		<link rel="icon" href="{% static 'RENCI_Ventilator/favicon.png' %}" type="image/png">
+		
+		<!-- JQuery components -->
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+		
+		<!-- Bootstrap components -->
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css">
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/css/bootstrap-select.css" />
+		
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js"></script>
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/js/bootstrap-select.min.js"></script>
+		
+		<!-- D3 components -->
+		<script src="https://d3js.org/d3.v3.min.js"></script>
+		<script src="https://d3js.org/d3-time-format.v2.min.js"></script>
+		
+		<!-- tool tip balloons -->
+		<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+		
+		<!-- View components -->
+		<link rel="stylesheet" href="{% static 'RENCI_Ventilator/style.css' %}" type="text/css">
+
+		<script type="text/javascript">	function redirectme(target) {window.location.href = target;} </script>					
+	</head>
+	<body id="theBody">
+	  	<header>
+			<table id="pagehdr">
+				<tr>
+					<td align="left">
+                        <a href="" target="_blank"><img class="imgRVLogo" src="{% static 'RENCI_Ventilator/favicon.png' %}" style="width: 85px; height: 70px;"/></a>
+                    </td>
+					
+                    <td style="text-align: center;"><h1>Ventilator Dashboard</h1></td>
+
+					<td align="right">
+						<a href="https://renci.org/" target="_blank"><img class="imgRENCILogo" src="{% static 'RENCI_Ventilator/images/RENCIlogo.jpg' %}" style="width: 90px; height: 55px;"/></a><br>
+					</td>
+				</tr>		
+			</table>
+		</header>
+		  
+		{% block content %}
+		{% endblock %}
+	</body>
+</html>

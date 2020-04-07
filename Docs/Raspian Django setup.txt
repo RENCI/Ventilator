@@ -1,0 +1,13 @@
+Steps to get django running on raspian.
+
+	Install django: 
+		sudo pip3 install django==3.0.4
+
+	Verify install: 
+		django-admin --version
+
+	Clone repo, config Django, start Ventilator website
+		get repo: git clone https://github.com/RENCI/Ventilator.git		
+		goto directory: cd Ventilator
+		setup migrations: sudo python3 manage.py migrate
+		run django: sudo python3 manage.py runserver localhost:8000

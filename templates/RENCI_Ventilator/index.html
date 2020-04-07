@@ -1,20 +1,58 @@
+{% extends 'base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html>
-	<head>
-	  <meta charset="utf-8">
+	{% block title %}Ventilator Monitor{% endblock %}
+	{% block content %}
 
-	  	<title>RENCI Ventilator</title>
+		<div id="cardBody" class="card-body">
+			<ul class="nav nav-tabs" id="navTabs" role="tablist" style="margin-left:10px; margin-bottom: 7px">
+				<li class="nav-item">
+					<a data-balloon="This area is for monitoring the ventilator" data-balloon-pos="right" class="nav-link active" id="monitor-Tab" data-toggle="tab" href="#monitorTab" role="tab">Monitor</a>
+				</li>
 
-		<link rel="shortcut icon" href="{% static "RENCI_Ventilator/favicon.png" %}" type="image/png">
-		<link rel="icon" href="{% static "RENCI_Ventilator/favicon.png" %}" type="image/png">
-	</head>
-	<body id="theBody">
-	  	<header>
-            <h1>
-                This is the main page.
-            </h1>
+				<li class="nav-item">
+					<a data-balloon="This area is for viewing configuration items" data-balloon-pos="up" class="nav-link" id="configuration-tab" data-toggle="tab" href="#configTab" role="tab">Configuration</a>
+				</li>
+            </ul>
 
-		</header>
-    </body>
-</html>
+			<div class="row">
+				<div class="col-sm-10">
+					<div class="card" style="border: 1px;">
+
+						<div class="card-body">
+
+                            <div id="tabContent" class="tab-content">
+								<div id="monitorTab" class="tab-pane fade show active" role="tabpanel">
+									<div class="row">
+										<div class="col-sm-10">
+											<div class="card">
+												<div class="card-header">
+													<span data-balloon="Monitor tab." data-balloon-pos="right">Monitor</span>&nbsp;&nbsp;
+												</div>
+
+												<div id="monitorTarget"></div>
+											</div>
+										</div>
+									</div>
+								</div>
+
+								<div id="configTab" class="tab-pane fade show" role="tabpanel">
+									<div class="row">
+										<div class="col-sm-10">
+											<div class="card">
+												<div class="card-header">
+													<span data-balloon="Configuration tab." data-balloon-pos="right">Configuration</span>&nbsp;&nbsp;
+												</div>
+
+												<div id="monitorTarget"></div>
+											</div>
+										</div>
+									</div>
+								</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+	{% endblock %}
+
