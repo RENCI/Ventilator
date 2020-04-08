@@ -10,4 +10,14 @@ Steps to get django running on raspian.
 		get repo: git clone https://github.com/RENCI/Ventilator.git		
 		goto directory: cd Ventilator
 		setup migrations: sudo python3 manage.py migrate
-		run django: sudo python3 manage.py runserver localhost:8000
+		run django in debug mode: sudo python3 manage.py runserver localhost:8000
+
+	setting up uwsgi (to run nginx as a service)
+		install uwsgi: sudo apt install uwsgi, sudo apt install uwsgi-plugin-python3
+		copy uwsgi config file to: /etc/uwsgi/apps-enabled/
+		restart uwsgi (use user pi creds): service uwsgi restart
+
+	setting up nginx (web server)
+		install nginx: sudo apt install nginx
+		copy nginx config file to: /etc/nginx/sites-enabled/
+		restart nginx (use user pi creds): service nginx restart
