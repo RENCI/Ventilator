@@ -30,6 +30,30 @@
                 $r_value.val("13");
                 $respirationValueSpan.html($r_value.val());
 
+                // the sensor 1 slider handler
+                $sensor1ValueSpan = $('.sensor1ValueSpan');
+                $s1_value = $('#sensor1Range');
+                $sensor1ValueSpan.html($s1_value.val());
+                $s1_value.on('input change', () => {
+                $sensor1ValueSpan.html($s1_value.val());
+                });
+
+                // set the initial sensor 1 value
+                $s1_value.val("24");
+                $sensor1ValueSpan.html($s1_value.val());
+
+                // the sensor 2 slider handler
+                $sensor2ValueSpan = $('.sensor2ValueSpan');
+                $s2_value = $('#sensor2Range');
+                $sensor2ValueSpan.html($s2_value.val());
+                $s2_value.on('input change', () => {
+                $sensor2ValueSpan.html($s2_value.val());
+                });
+
+                // set the initial sensor 1 value
+                $s2_value.val("64");
+                $sensor2ValueSpan.html($s2_value.val());
+
                 // create the monitor instances for
 			    instance("#pressureInstance", "Pressure");
 			    instance("#respirationInstance", "Respiration");
@@ -201,21 +225,18 @@
 												<div class="card-header">
 													<span data-balloon="Configuration tab." data-balloon-pos="right">Configuration</span>&nbsp;&nbsp;
 												</div>
-
                                                 <div style="margin-left: 10px" class="d-flex justify-content-left my-2">
                                                     <div class="w-25">
-                                                        <label for="pressureRange">Ventilation assist pressure</label>
+                                                        <label for="pressureRange">Ventilation assist pressure:</label>
+                                                        <span class="font-weight-bold text-primary ml-2 pressureValueSpan"></span>
                                                         <input type="range" class="custom-range" id="pressureRange" min="0" max="100"></input>
                                                     </div>
-                                                    <span class="font-weight-bold text-primary ml-2 pressureValueSpan"></span>
-                                                </div>
 
-                                                <div style="margin-left: 10px" class="d-flex justify-content-left my-2">
-                                                    <div class="w-25">
-                                                        <label for="respirationRange">Respirations/min</label>
+                                                    <div style="margin-left: 30px" class="w-25">
+                                                        <label for="respirationRange">Respirations/min:</label>
+                                                        <span class="font-weight-bold text-primary ml-2 respirationValueSpan"></span>
                                                         <input type="range" class="custom-range" id="respirationRange" min="5" max="20" />
                                                     </div>
-                                                    <span class="font-weight-bold text-primary ml-2 respirationValueSpan"></span>
                                                 </div>
 											</div>
 										</div>
@@ -229,7 +250,17 @@
 												<div class="card-header">
 													<span data-balloon="Calibration tab." data-balloon-pos="right">Calibration</span>&nbsp;&nbsp;
 												</div>
-												<div id="calibrateTarget" style="margin-left: 3px; margin-top: 5px; margin-right: 0px">
+                                                <div style="margin-left: 10px" class="d-flex justify-content-left my-2">
+                                                    <div class="w-25">
+                                                        <label for="sensor1Range">Sensor 1:</label>
+                                                        <span class="font-weight-bold text-primary ml-2 sensor1ValueSpan"></span>
+                                                        <input type="range" class="custom-range" id="sensor1Range" min="0" max="100"></input>
+                                                    </div>
+                                                    <div style="margin-left: 30px" class="w-25">
+                                                        <label for="sensor2Range">Sensor 2:</label>
+                                                        <span class="font-weight-bold text-primary ml-2 sensor2ValueSpan"></span>
+                                                        <input type="range" class="custom-range" id="sensor2Range" min="0" max="100"></input>
+                                                    </div>
                                                 </div>
 											</div>
 										</div>
@@ -241,9 +272,10 @@
 										<div class="col-md-12">
 											<div class="card">
 												<div class="card-header">
-													<span data-balloon="Monitor tab." data-balloon-pos="right">Diagnostics</span>&nbsp;&nbsp;
+													<span data-balloon="Diagnostics tab." data-balloon-pos="right">Diagnostics</span>&nbsp;&nbsp;
 												</div>
-												<div id="diagnosticsTarget" style="margin-left: 3px; margin-top: 5px; margin-right: 0px">
+                                                <div>
+                                                    <textarea style="margin-left: 5px; margin-top: 5px; margin-bottom: 5px" id="diagnosticResults" cols="100" rows="5" disabled>Diagnostic results...</textarea>
                                                 </div>
 											</div>
 										</div>
