@@ -31,15 +31,16 @@
                 $respirationValueSpan.html($r_value.val());
 
                 // create the monitor instances for
-			    instance("#pressureInstance");
-			    instance("#respirationInstance");
+			    instance("#pressureInstance", "Pressure");
+			    instance("#respirationInstance", "Respiration");
 			})
 
             /**
              * The monitor instance renderer
              * @param id - The id of the region to render onto
              */
-            function instance(id) {
+            function instance(id, title) {
+                // define some constants
                 var n = 120,
                     random = d3.randomUniform(0, 20),
                     duration = 1000,
@@ -48,6 +49,7 @@
                         return 0;
                     });
 
+                // get the svg rendering area
                 var svg = d3.select(id),
                     margin = {top: 0, right: 0, bottom: 0, left: 25},
                     width = 370,
@@ -79,6 +81,12 @@
                     .append("rect")
                     .attr("width", width)
                     .attr("height", height);
+
+                // throw up the grpah title
+                g.append("text")
+                    .attr("transform", "translate(" + (width/2.5) + ", 17)")
+                    .attr("fill", "darkblue")
+                    .text(title);
 
                 // define the x axis animation
                 var axis = g.append("g")
