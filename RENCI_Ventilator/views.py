@@ -6,3 +6,6 @@ from django.http import HttpResponse
 def index(request):
     # render the main page
     return render(request, 'RENCI_Ventilator/index.html', {})
+
+# def test(request):
+#     return render(request, 'RENCI_Ventilator/test.html', {})

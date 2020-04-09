@@ -27,6 +27,16 @@ h2 span {
    padding: 12px; 
 }
 
+.line {
+  fill: none;
+  stroke: darkred;
+  stroke-width: 1.5px;
+}
+
+.x.axis line {
+  shape-rendering: auto;
+}
+
 .imgRVLogo {
     border: 1px solid #000;
     border-radius: 5px;

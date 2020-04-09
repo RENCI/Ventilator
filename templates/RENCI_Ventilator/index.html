@@ -6,92 +6,96 @@
 			// page is rendered, load up the details from the DB
 			$(document).ready(function()
 			{
-                const $valueSpan1 = $('.valueSpan1');
-                const $value1 = $('#customRange1');
-                $valueSpan1.html(25);
-                $value1.on('input change', () => {
-                    $valueSpan1.html($value1.val());
-                });
+			    instance("#instance1");
+			    instance("#instance2");
+			})
 
-                const $valueSpan2 = $('.valueSpan2');
-                const $value2 = $('#customRange2');
-                $valueSpan2.html(50);
-                $value2.on('input change', () => {
-                    $valueSpan2.html($value2.val());
-                });
+            function instance(id) {
+                var n = 120,
+                    random = d3.randomUniform(0, 20),
+                    duration = 750,
+                    now = new Date(Date.now() - duration),
+                    data = d3.range(n).map(function () {
+                        return 0;
+                    });
 
-                // set the dimensions and margins of the graph
-                var margin = {top: 30, right: 0, bottom: 30, left: 50},
-                    width = 200 - margin.left - margin.right,
-                    height = 200 - margin.top - margin.bottom;
+                var svg = d3.select(id),
+                    margin = {top: 0, right: 0, bottom: 0, left: 25},
+                    width = 300,
+                    height = 150,
+                    g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-                //Read the data
-                d3.csv("{% static 'data.csv' %}",
-                function(data) {
-                  // group the data: I want to draw one line per group
-                  var sumstat = d3.nest() // nest function allows to group the calculation per level of a factor
-                    .key(function(d) { return d.name;})
-                    .entries(data);
+                var x = d3.scaleTime()
+                    .domain([now - (n - 2) * duration, now - duration])
+                    .range([0, width]);
 
-                  // What is the list of groups?
-                  allKeys = sumstat.map(function(d){return d.key})
+                var y = d3.scaleLinear()
+                    .domain([0, 20])
+                    .range([height, 20]);
 
-                  // Add an svg element for each group. The will be one beside each other and will go on the next row when no more room available
-                  var svg = d3.select("#monitorTarget")
-                    .selectAll("uniqueChart")
-                    .data(sumstat)
-                    .enter()
-                    .append("svg")
-                      .attr("width", width + margin.left + margin.right)
-                      .attr("height", height + margin.top + margin.bottom)
-                    .append("g")
-                      .attr("transform",
-                            "translate(" + margin.left + "," + margin.top + ")");
+                var line = d3.line()
+                    .x(function (d, i) {
+                        return x(now - (n - 1 - i) * duration);
+                    })
+                    .y(function (d, i) {
+                        return y(d);
+                    }).curve(d3.curveBasis);
 
-                  // Add X axis --> it is a integer
-                  var x = d3.scaleLinear()
-                    .domain(d3.extent(data, function(d) { return d.xaxis; }))
-                    .range([ 0, width ]);
-                  svg
-                    .append("g")
+                g.append("defs").append("clipPath")
+                    .attr("id", "clip")
+                    .append("rect")
+                    .attr("width", width)
+                    .attr("height", height);
+
+                var axis = g.append("g")
+                    .attr("class", "axis axis--x")
                     .attr("transform", "translate(0," + height + ")")
-                    .call(d3.axisBottom(x).ticks(3));
+                    .call(x.axis = d3.axisBottom(x));
 
-                  //Add Y axis
-                  var y = d3.scaleLinear()
-                    .domain([0, d3.max(data, function(d) { return +d.n; })])
-                    .range([ height, 0 ]);
-                  svg.append("g")
-                    .call(d3.axisLeft(y).ticks(5));
+                g.append("g")
+                    .attr("class", "axis axis--y")
+                    .call(d3.axisLeft(y));
 
-                  // color palette
-                  var color = d3.scaleOrdinal()
-                    .domain(allKeys)
-                    .range(['#e41a1c','#377eb8','#4daf4a','#984ea3'])
-
-                  // Draw the line
-                  svg
+                var path = g.append("g")
+                    .attr("clip-path", "url(#clip)")
                     .append("path")
-                      .attr("fill", "none")
-                      .attr("stroke", function(d){ return color(d.key) })
-                      .attr("stroke-width", 1.9)
-                      .attr("d", function(d){
-                        return d3.line()
-                          .x(function(d) { return x(d.xaxis); })
-                          .y(function(d) { return y(+d.n); })
-                          (d.values)
-                      })
+                    .datum(data)
+                    .attr("class", "line")
+                    .transition()
+                    .duration(10)
+                    .ease(d3.easeLinear)
+                    .on("start", tick);
 
-                  // Add titles
-                  svg
-                    .append("text")
-                    .attr("text-anchor", "start")
-                    .attr("y", -5)
-                    .attr("x", 0)
-                    .text(function(d){ return(d.key)})
-                    .style("fill", function(d){ return color(d.key) })
-                })
-            })
+                var transition = d3.select({}).transition()
+                    .duration(1000)
+                    .ease(d3.easeLinear);
+
+                function tick() {
+                    transition = transition.each(function () {
+                        // update the domains
+                        now = new Date();
+                        x.domain([now - (n - 2) * duration, now - duration]);
+
+                        var rnd = Math.round(random());
+
+                        //console.log("x:" + (now - (n - 2) * duration) + ", y:" + rnd);
+
+                        // push the value onto the data
+                        data.push(rnd);
+
+                        // redraw the line
+                        svg.select(".line")
+                            .attr("d", line)
+                            .attr("transform", null);
+
+                        // slide the x-axis left
+                        axis.call(x.axis);
+
+                        // Pop the old data point off the front.
+                        data.shift();
+                    }).transition().on("start", tick);
+                }
+            }
 		</script>
 
 		<div id="cardBody" class="card-body">
@@ -120,7 +124,10 @@
 													<span data-balloon="Monitor tab." data-balloon-pos="right">Monitor</span>&nbsp;&nbsp;
 												</div>
 
-												<div id="monitorTarget" style="margin-top: 5px; margin-left: 5px"></div>
+												<div id="monitorTarget" style="margin-top: 5px; margin-left: 5px">
+                                                    <svg id="instance1" width="345" height="175"></svg>
+                                                    <svg id="instance2" width="345" height="175"></svg>
+                                                </div>
 											</div>
 										</div>
 									</div>
