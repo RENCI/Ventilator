@@ -13,7 +13,7 @@
             function instance(id) {
                 var n = 120,
                     random = d3.randomUniform(0, 20),
-                    duration = 750,
+                    duration = 1000,
                     now = new Date(Date.now() - duration),
                     data = d3.range(n).map(function () {
                         return 0;
@@ -62,9 +62,9 @@
                     .datum(data)
                     .attr("class", "line")
                     .transition()
-                    .duration(10)
-                    .ease(d3.easeLinear)
-                    .on("start", tick);
+                        .duration(10000)
+                        .ease(d3.easeLinear)
+                        .on("start", tick);
 
                 var transition = d3.select({}).transition()
                     .duration(1000)
@@ -74,7 +74,7 @@
                     transition = transition.each(function () {
                         // update the domains
                         now = new Date();
-                        x.domain([now - (n - 2) * duration, now - duration]);
+                        x.domain([now - (n) * duration, now - duration]);
 
                         var rnd = Math.round(random());
 
@@ -83,9 +83,15 @@
                         // push the value onto the data
                         data.push(rnd);
 
+                        if(rnd < 10)
+                            color_class = "darkred"
+                        else
+                            color_class = "darkgreen"
+
                         // redraw the line
                         svg.select(".line")
                             .attr("d", line)
+                            .attr("stroke", color_class)
                             .attr("transform", null);
 
                         // slide the x-axis left
