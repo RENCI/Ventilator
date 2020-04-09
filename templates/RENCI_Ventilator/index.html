@@ -6,10 +6,39 @@
 			// page is rendered, load up the details from the DB
 			$(document).ready(function()
 			{
-			    instance("#instance1");
-			    instance("#instance2");
+			    // The pressure slider handler
+                $pressureValueSpan = $('.pressureValueSpan');
+                $p_value = $('#pressureRange');
+                $pressureValueSpan.html($p_value.val());
+                $p_value.on('input change', () => {
+                $pressureValueSpan.html($p_value.val());
+                });
+
+                // set the initial pressure value
+                $p_value.val("20");
+                $pressureValueSpan.html($p_value.val());
+
+                // the respiration slider handler
+                $respirationValueSpan = $('.respirationValueSpan');
+                $r_value = $('#respirationRange');
+                $respirationValueSpan.html($r_value.val());
+                $r_value.on('input change', () => {
+                $respirationValueSpan.html($r_value.val());
+                });
+
+                // set the initial respiration value
+                $r_value.val("13");
+                $respirationValueSpan.html($r_value.val());
+
+                // create the monitor instances for
+			    instance("#pressureInstance");
+			    instance("#respirationInstance");
 			})
 
+            /**
+             * The monitor instance renderer
+             * @param id - The id of the region to render onto
+             */
             function instance(id) {
                 var n = 120,
                     random = d3.randomUniform(0, 20),
@@ -25,14 +54,17 @@
                     height = 150,
                     g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
+                // define the x ais
                 var x = d3.scaleTime()
                     .domain([now - (n - 2) * duration, now - duration])
                     .range([0, width]);
 
+                // define the y axis
                 var y = d3.scaleLinear()
                     .domain([0, 20])
                     .range([height, 20]);
 
+                // define the line properties
                 var line = d3.line()
                     .x(function (d, i) {
                         return x(now - (n - 1 - i) * duration);
@@ -41,35 +73,41 @@
                         return y(d);
                     }).curve(d3.curveBasis);
 
+                // assign a clip path for the left scrolling time animation area
                 g.append("defs").append("clipPath")
                     .attr("id", "clip")
                     .append("rect")
                     .attr("width", width)
                     .attr("height", height);
 
+                // define the x axis animation
                 var axis = g.append("g")
                     .attr("class", "axis axis--x")
                     .attr("transform", "translate(0," + height + ")")
                     .call(x.axis = d3.axisBottom(x));
 
+                // render the y axis
                 g.append("g")
                     .attr("class", "axis axis--y")
                     .call(d3.axisLeft(y));
 
+                // render the animation area
                 var path = g.append("g")
                     .attr("clip-path", "url(#clip)")
                     .append("path")
                     .datum(data)
                     .attr("class", "line")
                     .transition()
-                        .duration(10000)
+                        .duration(1000)
                         .ease(d3.easeLinear)
                         .on("start", tick);
 
+                // define the temporal transiton of the x axis and data
                 var transition = d3.select({}).transition()
                     .duration(1000)
                     .ease(d3.easeLinear);
 
+                // function to perform the temporal updates
                 function tick() {
                     transition = transition.each(function () {
                         // update the domains
@@ -83,10 +121,11 @@
                         // push the value onto the data
                         data.push(rnd);
 
+                        // data line color based on a threshold
                         if(rnd < 10)
-                            color_class = "darkred"
+                            color_class = "darkred";
                         else
-                            color_class = "darkgreen"
+                            color_class = "darkgreen";
 
                         // redraw the line
                         svg.select(".line")
@@ -97,7 +136,7 @@
                         // slide the x-axis left
                         axis.call(x.axis);
 
-                        // Pop the old data point off the front.
+                        // remove the oldest data point that has scrolled off
                         data.shift();
                     }).transition().on("start", tick);
                 }
@@ -111,7 +150,15 @@
 				</li>
 
 				<li class="nav-item">
-                    <a data-balloon="This area is for viewing configuration items" data-balloon-pos="up" class="nav-link" id="configuration-tab" data-toggle="tab" href="#configTab" role="tab">Configuration</a>
+                    <a data-balloon="This area is for viewing configuration items" data-balloon-pos="up" class="nav-link" id="configuration-tab" data-toggle="tab" href="#configurationTab" role="tab">Configuration</a>
+				</li>
+
+				<li class="nav-item">
+                    <a data-balloon="This area is for viewing configuration items" data-balloon-pos="up" class="nav-link" id="calibration-tab" data-toggle="tab" href="#calibrationTab" role="tab">Calibration</a>
+				</li>
+
+				<li class="nav-item">
+                    <a data-balloon="This area is for viewing configuration items" data-balloon-pos="up" class="nav-link" id="diagnostics-tab" data-toggle="tab" href="#diagnosticsTab" role="tab">Diagnostics</a>
 				</li>
             </ul>
 
@@ -131,15 +178,15 @@
 												</div>
 
 												<div id="monitorTarget" style="margin-left: 3px; margin-top: 5px; margin-right: 0px">
-                                                    <svg style="margin-left: 0px" id="instance1" width="403" height="175"></svg>
-                                                    <svg style="margin-left: -3px" id="instance2" width="403" height="175"></svg>
+                                                    <svg style="margin-left: 0px" id="pressureInstance" width="403" height="175"></svg>
+                                                    <svg style="margin-left: -3px" id="respirationInstance" width="403" height="175"></svg>
                                                 </div>
 											</div>
 										</div>
 									</div>
 								</div>
 
-								<div id="configTab" class="tab-pane fade show" role="tabpanel">
+								<div id="configurationTab" class="tab-pane fade show" role="tabpanel">
 									<div class="row">
 										<div class="col-md-12">
 											<div class="card">
@@ -147,20 +194,48 @@
 													<span data-balloon="Configuration tab." data-balloon-pos="right">Configuration</span>&nbsp;&nbsp;
 												</div>
 
-                                                <div class="d-flex justify-content-center my-4">
-                                                  <div class="w-75">
-                                                    <label for="customRange1">Setting 1</label>
-                                                    <input type="range" class="custom-range" id="customRange1" min="0" max="100">
-                                                  </div>
-                                                  <span class="font-weight-bold text-primary ml-2 valueSpan1"></span>
+                                                <div style="margin-left: 10px" class="d-flex justify-content-left my-2">
+                                                    <div class="w-25">
+                                                        <label for="pressureRange">Ventilation assist pressure</label>
+                                                        <input type="range" class="custom-range" id="pressureRange" min="0" max="100"></input>
+                                                    </div>
+                                                    <span class="font-weight-bold text-primary ml-2 pressureValueSpan"></span>
                                                 </div>
 
-                                                <div class="d-flex justify-content-center my-4">
-                                                  <div class="w-75">
-                                                    <label for="customRange2">Setting 2</label>
-                                                    <input type="range" class="custom-range" id="customRange2" min="0" max="100">
-                                                  </div>
-                                                  <span class="font-weight-bold text-primary ml-2 valueSpan2"></span>
+                                                <div style="margin-left: 10px" class="d-flex justify-content-left my-2">
+                                                    <div class="w-25">
+                                                        <label for="respirationRange">Respirations/min</label>
+                                                        <input type="range" class="custom-range" id="respirationRange" min="5" max="20" />
+                                                    </div>
+                                                    <span class="font-weight-bold text-primary ml-2 respirationValueSpan"></span>
+                                                </div>
+											</div>
+										</div>
+									</div>
+								</div>
+
+								<div id="calibrationTab" class="tab-pane fade show" role="tabpanel">
+									<div class="row">
+										<div class="col-md-12">
+											<div class="card">
+												<div class="card-header">
+													<span data-balloon="Calibration tab." data-balloon-pos="right">Calibration</span>&nbsp;&nbsp;
+												</div>
+												<div id="calibrateTarget" style="margin-left: 3px; margin-top: 5px; margin-right: 0px">
+                                                </div>
+											</div>
+										</div>
+									</div>
+								</div>
+
+								<div id="diagnosticsTab" class="tab-pane fade show" role="tabpanel">
+									<div class="row">
+										<div class="col-md-12">
+											<div class="card">
+												<div class="card-header">
+													<span data-balloon="Monitor tab." data-balloon-pos="right">Diagnostics</span>&nbsp;&nbsp;
+												</div>
+												<div id="diagnosticsTarget" style="margin-left: 3px; margin-top: 5px; margin-right: 0px">
                                                 </div>
 											</div>
 										</div>
