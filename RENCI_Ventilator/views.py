@@ -1,10 +1,11 @@
+import json
+import random
+
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.db.models import QuerySet
-
 from RENCI_Ventilator.models import Configuration, Calibration, Diagnostic, Pressure, Respiration
-import json
-import random
+
 
 # Create your views here.
 # main entry point
