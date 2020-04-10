@@ -49,7 +49,25 @@ def data_req(request):
                     }})
 
             # convert the data to json format
-            ret_val = json.dumps(settings)
+            ret_val = settings
+
+        elif req_type == 'calib':
+            # get the data from the database
+            calib_items: QuerySet = Calibration.objects.all()
+
+            # convert each record into a list of dicts
+            for item in calib_items:
+                # make the conversion
+                settings.update({item.param_name: {
+                        'id': item.id,
+                        'param_name': item.param_name,
+                        'description': item.description,
+                        'value': item.value,
+                        'ts': str(item.ts)
+                    }})
+
+            # convert the data to json format
+            ret_val = settings
 
         # config details need a parameter
         elif req_type == 'diags':
@@ -59,8 +77,11 @@ def data_req(request):
             # get the data from the database
             diag_items: QuerySet = Diagnostic.objects.filter(grouping=group_number)
 
-            # convert the data to json format
+            # convert the query set into json
             ret_val = serializers.serialize('json', diag_items)
+
+            # convert the json to a string for posting back
+            ret_val = json.loads(ret_val)
 
         # update a configuration or calibration entry
         elif req_type == 'update':
@@ -90,27 +111,17 @@ def data_req(request):
                     # split the settings
                     settings = param.split('~')
 
-                    #tbl_obj.objects.filter(vent_pressure = )
+                    # fro each setting
+                    for setting in settings:
+                        # split param and value
+                        item = setting.split('=')
+
+                        # update the value
+                        tbl_obj.objects.filter(param_name = item[0]).update(value = item[1])
+
+                    ret_val = 'Settings saved.'
             else:
                 ret_val = 'Invalid setting request.'
-
-        elif req_type == 'calib':
-            # get the data from the database
-            calib_items: QuerySet = Calibration.objects.all()
-
-            # convert each record into a list of dicts
-            for item in calib_items:
-                # make the conversion
-                settings.update({item.param_name: {
-                        'id': item.id,
-                        'param_name': item.param_name,
-                        'description': item.description,
-                        'value': item.value,
-                        'ts': str(item.ts)
-                    }})
-
-            # convert the data to json format
-            ret_val = json.dumps(settings)
 
         elif req_type == 'event':
             # get any params if there are any
@@ -123,27 +134,27 @@ def data_req(request):
                 # init the table object
                 tbl_obj = None
 
-                # testing purposes only
-                rnd = 0
+                # TODO: get the value from the sensor
+                sensorValue = 0
 
                 # get the correct table
                 if param == 'Pressure':
                     tbl_obj = Pressure
-                    rnd = random.randrange(30, 40, 1)
+                    sensorValue = random.randrange(30, 40, 1)
                 elif param == 'Respiration':
                     tbl_obj = Respiration
-                    rnd = random.randrange(10, 15, 1)
+                    sensorValue = random.randrange(10, 15, 1)
 
                 # did we get a table object
                 if tbl_obj is not None:
-                    ret_val = json.dumps(rnd)
+                    ret_val = rnd
                 else:
                     ret_val = 'Invalid or missing parameter.'
     else:
         ret_val = 'Invalid data request.'
 
     # load the response and type, no caching here
-    response = HttpResponse(ret_val, content_type='application/json')
+    response = HttpResponse(json.dumps(ret_val), content_type='application/json')
     response['Cache-Control'] = 'no-cache'
 
     # return the resultant JSON to the caller

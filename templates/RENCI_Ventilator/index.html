@@ -44,14 +44,14 @@
                 let msgTarget = null;
 
                 // put in the specific params for this area
-                if (type === 'config')
+                if (table === 'config')
                 {
-                    qs = qs + 'pressureRange=' + $('#pressureRange').val() + '~' + 'respirationRange=' + $('#respirationRange').val();
+                    qs = qs + 'pressure=' + $('#pressureRange').val() + '~' + 'respiration=' + $('#respirationRange').val();
                     msgTarget = $('#saveConfigMsg');
                 }
                 else
                 {
-                    qs = qs + 'sensor1Range=' + $('#sensor1Range').val() + '~' + 'sensor2Range=' + $('#sensor2Range').val();
+                    qs = qs + 'sensor1=' + $('#sensor1Range').val() + '~' + 'sensor2=' + $('#sensor2Range').val();
                     msgTarget = $('#saveCalibMsg');
                 }
 
@@ -224,7 +224,7 @@
                     p_value.on('input change', () => {pressureValueSpan.html(p_value.val());});
 
                     // set the initial pressure value
-                    p_value.val(configData.vent_pressure.value);
+                    p_value.val(configData.pressure.value);
                     pressureValueSpan.html(p_value.val());
 
                     // the respiration slider handler
@@ -236,7 +236,7 @@
                     });
 
                     // set the initial respiration value
-                    r_value.val(configData.respirations.value);
+                    r_value.val(configData.respiration.value);
                     respirationValueSpan.html(r_value.val());
                 });
 
@@ -270,7 +270,7 @@
                 });
 
                 // create the monitor instances for each type
-                instance("#pressureInstance", "Pressure", 50, 250);
+                instance("#pressureInstance", "Pressure", 50, 500);
                 instance("#respirationInstance", "Respiration", 20, 1000);
 			});
 		</script>
@@ -326,13 +326,13 @@
 												</div>
                                                 <div style="margin-left: 10px" class="d-flex justify-content-left my-2">
                                                     <div>
-                                                        <label for="pressureRange">Ventilation pressure warning:</label>
+                                                        <label for="pressureRange">Pressure warning:</label>
                                                         <span class="font-weight-bold text-primary ml-2 pressureValueSpan"></span>
                                                         <input type="range" class="custom-range" id="pressureRange" min="0" max="100" />
                                                     </div>
 
                                                     <div style="margin-left: 30px">
-                                                        <label for="respirationRange">Respirations/min warning:</label>
+                                                        <label for="respirationRange">Respiration warning:</label>
                                                         <span class="font-weight-bold text-primary ml-2 respirationValueSpan"></span>
                                                         <input type="range" class="custom-range" id="respirationRange" min="5" max="20" />
                                                     </div>
