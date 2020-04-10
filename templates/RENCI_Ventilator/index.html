@@ -35,10 +35,10 @@
             }
 
             // saves the slider control settings
-            function saveSetting(type)
+            function saveSetting(table)
             {
                 // build up the query string
-                let qs = '&table=' + type + '&param=';
+                let qs = '&table=' + table + '&param=';
 
                 // init the target control
                 let msgTarget = null;
@@ -46,12 +46,12 @@
                 // put in the specific params for this area
                 if (type === 'config')
                 {
-                    qs = qs + $('#pressureRange').val() + '~' + $('#respirationRange').val();
+                    qs = qs + 'pressureRange=' + $('#pressureRange').val() + '~' + 'respirationRange=' + $('#respirationRange').val();
                     msgTarget = $('#saveConfigMsg');
                 }
                 else
                 {
-                    qs = qs + $('#sensor1Range').val() + '~' + $('#sensor2Range').val();
+                    qs = qs + 'sensor1Range=' + $('#sensor1Range').val() + '~' + 'sensor2Range=' + $('#sensor2Range').val();
                     msgTarget = $('#saveCalibMsg');
                 }
 
@@ -84,11 +84,9 @@
                  *  title - the title shown above the graph
                  *  y_scale - the ticks on the y axis
                  */
-                const instance = (id, title, y_ticks) => {
+                const instance = (id, title, y_ticks, duration) => {
                     // define some constants
                     let n = 120,
-                        // testing only random = d3.randomUniform(0, 20),
-                        duration = 1000,
                         now = new Date(Date.now() - duration),
                         data = d3.range(n).map(function () {
                             return 0;
@@ -151,13 +149,13 @@
                         .datum(data)
                         .attr("class", "line")
                         .transition()
-                            .duration(1000)
+                            .duration(duration)
                             .ease(d3.easeLinear)
                             .on("start", tick);
 
                     // define the temporal transiton of the x axis and data
                     let transition = d3.select({}).transition()
-                        .duration(1000)
+                        .duration(duration)
                         .ease(d3.easeLinear);
 
                     // function to perform the temporal updates
@@ -272,8 +270,8 @@
                 });
 
                 // create the monitor instances for each type
-                instance("#pressureInstance", "Pressure", 100);
-                instance("#respirationInstance", "Respiration", 20);
+                instance("#pressureInstance", "Pressure", 50, 250);
+                instance("#respirationInstance", "Respiration", 20, 1000);
 			});
 		</script>
 
@@ -327,13 +325,13 @@
 													<span data-balloon="Configuration tab." data-balloon-pos="right">Configuration</span>&nbsp;&nbsp;
 												</div>
                                                 <div style="margin-left: 10px" class="d-flex justify-content-left my-2">
-                                                    <div class="w-25">
+                                                    <div>
                                                         <label for="pressureRange">Ventilation pressure warning:</label>
                                                         <span class="font-weight-bold text-primary ml-2 pressureValueSpan"></span>
                                                         <input type="range" class="custom-range" id="pressureRange" min="0" max="100" />
                                                     </div>
 
-                                                    <div style="margin-left: 30px" class="w-25">
+                                                    <div style="margin-left: 30px">
                                                         <label for="respirationRange">Respirations/min warning:</label>
                                                         <span class="font-weight-bold text-primary ml-2 respirationValueSpan"></span>
                                                         <input type="range" class="custom-range" id="respirationRange" min="5" max="20" />
@@ -356,12 +354,12 @@
 													<span data-balloon="Calibration tab." data-balloon-pos="right">Calibration</span>&nbsp;&nbsp;
 												</div>
                                                 <div style="margin-left: 10px" class="d-flex justify-content-left my-2">
-                                                    <div class="w-25">
+                                                    <div>
                                                         <label for="sensor1Range">Sensor 1:</label>
                                                         <span class="font-weight-bold text-primary ml-2 sensor1ValueSpan"></span>
                                                         <input type="range" class="custom-range" id="sensor1Range" min="0" max="100" />
                                                     </div>
-                                                    <div style="margin-left: 30px" class="w-25">
+                                                    <div style="margin-left: 30px">
                                                         <label for="sensor2Range">Sensor 2:</label>
                                                         <span class="font-weight-bold text-primary ml-2 sensor2ValueSpan"></span>
                                                         <input type="range" class="custom-range" id="sensor2Range" min="0" max="100" />

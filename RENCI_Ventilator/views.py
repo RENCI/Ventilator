@@ -64,13 +64,13 @@ def data_req(request):
 
         # update a configuration or calibration entry
         elif req_type == 'update':
-            legal_setting_types: list = ['config', 'calib']
+            legal_update_tables: list = ['config', 'calib']
 
             # get the setting type we will update
-            setting = request.GET.get('setting')
+            table = request.GET.get('table')
 
             # was this a legitimate request
-            if req_type in legal_setting_types:
+            if table in legal_update_tables:
                 # get the params
                 param = request.GET.get('param')
 
@@ -82,14 +82,15 @@ def data_req(request):
                     tbl_obj = None
 
                     # check the table type
-                    if setting == 'config':
+                    if table == 'config':
                         tbl_obj = Configuration
                     else:
                         tbl_obj = Calibration
 
                     # split the settings
+                    settings = param.split('~')
 
-
+                    #tbl_obj.objects.filter(vent_pressure = )
             else:
                 ret_val = 'Invalid setting request.'
 
@@ -128,7 +129,7 @@ def data_req(request):
                 # get the correct table
                 if param == 'Pressure':
                     tbl_obj = Pressure
-                    rnd = random.randrange(40, 50, 1)
+                    rnd = random.randrange(30, 40, 1)
                 elif param == 'Respiration':
                     tbl_obj = Respiration
                     rnd = random.randrange(10, 15, 1)
