@@ -4,7 +4,9 @@ import random
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.db.models import QuerySet
+from django.core import serializers
 from RENCI_Ventilator.models import Configuration, Calibration, Diagnostic, Pressure, Respiration
+from RENCI_Ventilator.diags import run_diagnostic
 
 
 # Create your views here.
@@ -51,52 +53,63 @@ def data_req(request):
 
         # config details need a parameter
         elif req_type == 'diags':
-            # get any params if there are any
-            param = request.GET.get('param')
+            # start the diagnostics, this will insert records into the database
+            group_number = run_diagnostic()
 
-            # its a failure if there was no param passed for this type
-            if param is None:
-                ret_val = 'Invalid or missing parameter.'
-            else:
-                # create the SQL. raw SQL calls using the django db model need an ID
-                the_sql = ""
+            # get the data from the database
+            diag_items: QuerySet = Diagnostic.objects.filter(grouping=group_number)
 
-                # get the data, account for single quotes
-                ret_val = str(Diagnostic.objects.raw(the_sql)[0].data)
+            # convert the data to json format
+            ret_val = serializers.serialize('json', diag_items)
 
         # update a configuration or calibration entry
         elif req_type == 'update':
-            # get any params if there are any
-            param = request.GET.get('param')
+            legal_setting_types: list = ['config', 'calib']
 
-            # its a failure if there was no param passed for this type
-            if param is None:
-                ret_val = 'Invalid or missing parameter.'
+            # get the setting type we will update
+            setting = request.GET.get('setting')
+
+            # was this a legitimate request
+            if req_type in legal_setting_types:
+                # get the params
+                param = request.GET.get('param')
+
+                # its a failure if there was no param passed for this type
+                if param is None:
+                    ret_val = 'Invalid or missing parameter(s).'
+                else:
+                    # init the table object
+                    tbl_obj = None
+
+                    # check the table type
+                    if setting == 'config':
+                        tbl_obj = Configuration
+                    else:
+                        tbl_obj = Calibration
+
+                    # split the settings
+
+
             else:
-                # init the table object
-                tbl_obj = None
-
-                # check the parameter type
-
-                # create the SQL. raw SQL calls using the django db model need an ID
-                the_sql = ""
-
-                # get the data, account for single quotes
-                ret_val = str(tbl_obj.objects.raw(the_sql)[0].data)
+                ret_val = 'Invalid setting request.'
 
         elif req_type == 'calib':
-            # get any params if there are any
-            param = request.GET.get('param')
+            # get the data from the database
+            calib_items: QuerySet = Calibration.objects.all()
 
-            # its a failure if there was no param passed for this type
-            if param is None:
-                ret_val = 'Invalid or missing parameter.'
-            else:
-                # create the SQL. raw SQL calls using the django db model need an ID
-                the_sql = ""
+            # convert each record into a list of dicts
+            for item in calib_items:
+                # make the conversion
+                settings.update({item.param_name: {
+                        'id': item.id,
+                        'param_name': item.param_name,
+                        'description': item.description,
+                        'value': item.value,
+                        'ts': str(item.ts)
+                    }})
 
-                # get the data, account for single quotes
-                ret_val = str(Calibration.objects.raw(the_sql)[0].data)
+            # convert the data to json format
+            ret_val = json.dumps(settings)
 
         elif req_type == 'event':
             # get any params if there are any
@@ -109,15 +122,20 @@ def data_req(request):
                 # init the table object
                 tbl_obj = None
 
+                # testing purposes only
+                rnd = 0
+
                 # get the correct table
                 if param == 'Pressure':
                     tbl_obj = Pressure
+                    rnd = random.randrange(40, 50, 1)
                 elif param == 'Respiration':
                     tbl_obj = Respiration
+                    rnd = random.randrange(10, 15, 1)
 
                 # did we get a table object
                 if tbl_obj is not None:
-                    ret_val = json.dumps(random.randrange(0, 20, 1))
+                    ret_val = json.dumps(rnd)
                 else:
                     ret_val = 'Invalid or missing parameter.'
     else:

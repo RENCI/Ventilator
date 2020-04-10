@@ -3,9 +3,219 @@
 	{% block title %}Ventilator Dashboard{% endblock %}
 	{% block content %}
 		<script type="text/javascript">
+
+            // sends a request for diagnostics
+            function sendDiagRequest()
+            {
+                d3.json('http://localhost:8000/dataReq?type=diags', function(error, diagData)
+                {
+                    // start the test
+                    let msg = 'Diagnostics initiated, Please wait...';
+
+                    $('#diagnosticResults').val(msg);
+
+                    // did we get some valid data
+                    if(error == null && diagData.length > 0)
+                    {
+                        // loop through the data
+                        diagData.forEach(
+                            // for each item returned
+                            function(item) {
+                                msg = msg + '\n' + item.fields.ts + ' - test:' + item.fields.test_name + ', description:' + item.fields.description + ', result:' + item.fields.result;
+                            }
+                        );
+
+                        // send out the final message
+                        $('#diagnosticResults').val(msg);
+                    }
+                    // send out an error message
+                    else
+                        $('#diagnosticResults').val(msg + '\n Error performing diagnostics.');
+                });
+            }
+
+            // saves the slider control settings
+            function saveSetting(type)
+            {
+                // build up the query string
+                let qs = '&table=' + type + '&param=';
+
+                // init the target control
+                let msgTarget = null;
+
+                // put in the specific params for this area
+                if (type === 'config')
+                {
+                    qs = qs + $('#pressureRange').val() + '~' + $('#respirationRange').val();
+                    msgTarget = $('#saveConfigMsg');
+                }
+                else
+                {
+                    qs = qs + $('#sensor1Range').val() + '~' + $('#sensor2Range').val();
+                    msgTarget = $('#saveCalibMsg');
+                }
+
+                d3.json('http://localhost:8000/dataReq?type=update' + qs, function(error, result)
+                {
+                    if(error != null) {
+                        msgTarget.text('Error saving.');
+                        msgTarget.addClass("error");
+                    }
+                    else {
+                        msgTarget.text(result);
+                        msgTarget.addClass("pass");
+                    }
+
+                    // show/hide the message
+                    msgTarget.show(500);
+                    msgTarget.hide(3000);
+               });
+            }
+
 			// page is rendered, load up the details from the DB
             $(document).ready(function()
 			{
+			    // clear out any cached results
+                $('#diagnosticResults').val('');
+
+                /**
+                 * The monitor instance renderer
+                 *  id - The id of the region to render onto
+                 *  title - the title shown above the graph
+                 *  y_scale - the ticks on the y axis
+                 */
+                const instance = (id, title, y_ticks) => {
+                    // define some constants
+                    let n = 120,
+                        // testing only random = d3.randomUniform(0, 20),
+                        duration = 1000,
+                        now = new Date(Date.now() - duration),
+                        data = d3.range(n).map(function () {
+                            return 0;
+                        });
+
+                    // get the svg rendering area
+                    let svg = d3.select(id),
+                        margin = {top: 0, right: 0, bottom: 0, left: 29},
+                        width = 365,
+                        height = 160,
+                        g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+                    // define the x ais
+                    let x = d3.scaleTime()
+                        .domain([now - (n - 2) * duration, now - duration])
+                        .range([0, width]);
+
+                    // define the y axis
+                    let y = d3.scaleLinear()
+                        .domain([0, y_ticks])
+                        .range([height, 20]);
+
+                    // define the line properties
+                    let line = d3.line()
+                        .x(function (d, i) {
+                            return x(now - (n - 1 - i) * duration);
+                        })
+                        .y(function (d) {
+                            return y(d);
+                        }).curve(d3.curveBasis);
+
+                    // assign a clip path for the left scrolling time animation area
+                    g.append("defs").append("clipPath")
+                        .attr("id", "clip")
+                        .append("rect")
+                        .attr("width", width)
+                        .attr("height", height);
+
+                    // throw up the grpah title
+                    g.append("text")
+                        .attr("transform", "translate(" + (width/2.5) + ", 17)")
+                        .attr("fill", "darkblue")
+                        .text(title);
+
+                    // define the x axis animation
+                    let axis = g.append("g")
+                        .attr("class", "axis axis--x")
+                        .attr("transform", "translate(0," + height + ")")
+                        .call(x.axis = d3.axisBottom(x));
+
+                    // render the y axis
+                    g.append("g")
+                        .attr("class", "axis axis--y")
+                        .call(d3.axisLeft(y));
+
+                    // render the animation area
+                    g.append("g")
+                        .attr("clip-path", "url(#clip)")
+                        .append("path")
+                        .datum(data)
+                        .attr("class", "line")
+                        .transition()
+                            .duration(1000)
+                            .ease(d3.easeLinear)
+                            .on("start", tick);
+
+                    // define the temporal transiton of the x axis and data
+                    let transition = d3.select({}).transition()
+                        .duration(1000)
+                        .ease(d3.easeLinear);
+
+                    // function to perform the temporal updates
+                    function tick() {
+                        transition = transition.each(function () {
+                            // update the domains
+                            now = new Date();
+                            x.domain([now - (n) * duration, now - duration]);
+
+                            // testing
+                            // let data_val = Math.round(random());
+                            // console.log("x:" + (now - (n - 2) * duration) + ", y:" + data_val);
+
+                            // get the data for this instance type
+                            d3.json('http://localhost:8000/dataReq?type=event&param=' + title, function(error, eventData)
+                            {
+                                // did we get something valid
+                                if(error == null && eventData >= 0)
+                                {
+                                    // get the data value
+                                    let data_val = eventData;
+
+                                    // push the value onto the data stack
+                                    data.push(data_val);
+
+                                    // init the default line color
+                                    let line_color = "darkgreen";
+
+                                    // declare the threshold
+                                    let threshold;
+
+                                    // get the threshold for the target view
+                                    if(title === 'Pressure')
+                                        threshold = Number($('#pressureRange').val());
+                                    else
+                                        threshold = Number($('#respirationRange').val());
+
+                                    // data line color change based on a threshold
+                                    if (data_val > threshold)
+                                        line_color = "darkred";
+
+                                    // redraw the line
+                                    svg.select(".line")
+                                        .attr("d", line)
+                                        .attr("stroke", line_color)
+                                        .attr("transform", null);
+
+                                    // slide the x-axis left
+                                    axis.call(x.axis);
+
+                                    // remove the oldest data point that has scrolled off
+                                    data.shift();
+                                }
+                            })
+                        }).transition().on("start", tick);
+                    }
+                };
+
                 // load up the various configuration items
 			    d3.json('http://localhost:8000/dataReq?type=config', function(error, configData)
                 {
@@ -30,7 +240,11 @@
                     // set the initial respiration value
                     r_value.val(configData.respirations.value);
                     respirationValueSpan.html(r_value.val());
+                });
 
+                // load up the various configuration items
+			    d3.json('http://localhost:8000/dataReq?type=calib', function(error, calibData)
+                {
                     // the sensor 1 slider handler
                     const sensor1ValueSpan = $('.sensor1ValueSpan');
                     const s1_value = $('#sensor1Range');
@@ -40,7 +254,7 @@
                     });
 
                     // set the initial sensor 1 value
-                    s1_value.val("24");
+                    s1_value.val(calibData.sensor1.value);
                     sensor1ValueSpan.html(s1_value.val());
 
                     // the sensor 2 slider handler
@@ -53,141 +267,14 @@
                     });
 
                     // set the initial sensor 1 value
-                    s2_value.val("64");
+                    s2_value.val(calibData.sensor2.value);
                     sensor2ValueSpan.html(s2_value.val());
+                });
 
-                    // create the monitor instances for
-                    instance("#pressureInstance", "Pressure");
-                    instance("#respirationInstance", "Respiration");
-                })
+                // create the monitor instances for each type
+                instance("#pressureInstance", "Pressure", 100);
+                instance("#respirationInstance", "Respiration", 20);
 			});
-
-            /**
-             * The monitor instance renderer
-             * @param id - The id of the region to render onto
-             */
-            function instance(id, title) {
-                // define some constants
-                let n = 120,
-                    // testing only random = d3.randomUniform(0, 20),
-                    duration = 1000,
-                    now = new Date(Date.now() - duration),
-                    data = d3.range(n).map(function () {
-                        return 0;
-                    });
-
-                // get the svg rendering area
-                let svg = d3.select(id),
-                    margin = {top: 0, right: 0, bottom: 0, left: 25},
-                    width = 370,
-                    height = 150,
-                    g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-                // define the x ais
-                let x = d3.scaleTime()
-                    .domain([now - (n - 2) * duration, now - duration])
-                    .range([0, width]);
-
-                // define the y axis
-                let y = d3.scaleLinear()
-                    .domain([0, 20])
-                    .range([height, 20]);
-
-                // define the line properties
-                let line = d3.line()
-                    .x(function (d, i) {
-                        return x(now - (n - 1 - i) * duration);
-                    })
-                    .y(function (d) {
-                        return y(d);
-                    }).curve(d3.curveBasis);
-
-                // assign a clip path for the left scrolling time animation area
-                g.append("defs").append("clipPath")
-                    .attr("id", "clip")
-                    .append("rect")
-                    .attr("width", width)
-                    .attr("height", height);
-
-                // throw up the grpah title
-                g.append("text")
-                    .attr("transform", "translate(" + (width/2.5) + ", 17)")
-                    .attr("fill", "darkblue")
-                    .text(title);
-
-                // define the x axis animation
-                let axis = g.append("g")
-                    .attr("class", "axis axis--x")
-                    .attr("transform", "translate(0," + height + ")")
-                    .call(x.axis = d3.axisBottom(x));
-
-                // render the y axis
-                g.append("g")
-                    .attr("class", "axis axis--y")
-                    .call(d3.axisLeft(y));
-
-                // render the animation area
-                g.append("g")
-                    .attr("clip-path", "url(#clip)")
-                    .append("path")
-                    .datum(data)
-                    .attr("class", "line")
-                    .transition()
-                        .duration(1000)
-                        .ease(d3.easeLinear)
-                        .on("start", tick);
-
-                // define the temporal transiton of the x axis and data
-                let transition = d3.select({}).transition()
-                    .duration(1000)
-                    .ease(d3.easeLinear);
-
-                // function to perform the temporal updates
-                function tick() {
-                    transition = transition.each(function () {
-                        // update the domains
-                        now = new Date();
-                        x.domain([now - (n) * duration, now - duration]);
-
-                        // testing
-                        // let data_val = Math.round(random());
-                        // console.log("x:" + (now - (n - 2) * duration) + ", y:" + data_val);
-
-                        // get the data for this instance type
-                        d3.json('http://localhost:8000/dataReq?type=event&param=' + title, function(error, eventData)
-                        {
-                            // did we get something valid
-                            if(error == null && eventData >= 0)
-                            {
-                                // get the data value
-                                let data_val = eventData;
-
-                                // push the value onto the data stack
-                                data.push(data_val);
-
-                                // init the default line color
-                                let line_color = "darkgreen";
-
-                                // data line color change based on a threshold
-                                if (data_val < 10)
-                                    line_color = "darkred";
-
-                                // redraw the line
-                                svg.select(".line")
-                                    .attr("d", line)
-                                    .attr("stroke", line_color)
-                                    .attr("transform", null);
-
-                                // slide the x-axis left
-                                axis.call(x.axis);
-
-                                // remove the oldest data point that has scrolled off
-                                data.shift();
-                            }
-                        })
-                    }).transition().on("start", tick);
-                }
-            }
 		</script>
 
 		<div id="cardBody" class="card-body">
@@ -209,13 +296,12 @@
 				</li>
             </ul>
 
-			<div class="row">
-				<div class="col-md-12">
-					<div class="card" style="border: 1px;">
-
-						<div class="card-body">
-
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card" style="border: 1px;">
+                        <div class="card-body">
                             <div id="tabContent" class="tab-content">
+
 								<div id="monitorTab" class="tab-pane fade show active" role="tabpanel">
 									<div class="row">
 										<div class="col-md-12">
@@ -224,9 +310,9 @@
 													<span data-balloon="Monitor tab." data-balloon-pos="right">Monitor</span>&nbsp;&nbsp;
 												</div>
 
-												<div id="monitorTarget" style="margin-left: 3px; margin-top: 5px; margin-right: 1px">
-                                                    <svg style="margin-left: 1px" id="pressureInstance" width="400" height="175"></svg>
-                                                    <svg style="margin-left: -3px" id="respirationInstance" width="400" height="175"></svg>
+												<div id="monitorTarget" style="margin-left: 1px; margin-top: 5px; margin-right: 1px">
+                                                    <svg style="margin-left: 3px" id="pressureInstance" width="400" height="185"></svg>
+                                                    <svg style="margin-left: -3px" id="respirationInstance" width="400" height="185"></svg>
                                                 </div>
 											</div>
 										</div>
@@ -242,16 +328,20 @@
 												</div>
                                                 <div style="margin-left: 10px" class="d-flex justify-content-left my-2">
                                                     <div class="w-25">
-                                                        <label for="pressureRange">Ventilation assist pressure:</label>
+                                                        <label for="pressureRange">Ventilation assist pressure warning:</label>
                                                         <span class="font-weight-bold text-primary ml-2 pressureValueSpan"></span>
                                                         <input type="range" class="custom-range" id="pressureRange" min="0" max="100" />
                                                     </div>
 
                                                     <div style="margin-left: 30px" class="w-25">
-                                                        <label for="respirationRange">Respirations/min:</label>
+                                                        <label for="respirationRange">Respirations/min warning:</label>
                                                         <span class="font-weight-bold text-primary ml-2 respirationValueSpan"></span>
                                                         <input type="range" class="custom-range" id="respirationRange" min="5" max="20" />
                                                     </div>
+                                                </div>
+                                                <div style="margin-left:5px; margin-bottom:5px">
+                                                    <input id="saveConfiguration" class="btn btn-info" type="button" value="Save" onclick="saveSetting('config');" />
+                                                    <div id="saveConfigMsg" style="margin-left: 5px; margin-top: 15px; margin-bottom: 5px; display: none;"></div>
                                                 </div>
 											</div>
 										</div>
@@ -277,6 +367,10 @@
                                                         <input type="range" class="custom-range" id="sensor2Range" min="0" max="100" />
                                                     </div>
                                                 </div>
+                                                <div style="margin-left:5px; margin-bottom:5px">
+                                                    <input id="saveCalibration" class="btn btn-info" type="button" value="Save" onclick="saveSetting('calib');"/>
+                                                    <div id="saveCalibMsg" style="margin-left: 5px; margin-top: 15px; margin-bottom: 5px; display: none;"></div>
+                                                </div>
 											</div>
 										</div>
 									</div>
@@ -289,9 +383,16 @@
 												<div class="card-header">
 													<span data-balloon="Diagnostics tab." data-balloon-pos="right">Diagnostics</span>&nbsp;&nbsp;
 												</div>
-                                                <div style="text-align: center">
-                                                    <label for="diagnosticResults">Diagnostic results</label>
-                                                    <textarea style="margin-top: 5px; margin-bottom: 5px" id="diagnosticResults" cols="100" rows="5" disabled>Diagnostic results...</textarea>
+                                                <div style="margin-left: 5px; margin-top: 5px; margin-bottom: 5px">
+                                                    <div style="text-align: left">
+                                                        <label for="diagnosticResults">Diagnostic results</label>
+                                                    </div>
+                                                    <div>
+                                                        <textarea style="margin-top: 5px; margin-bottom: 5px" id="diagnosticResults" cols="100" rows="5" disabled>Diagnostic results...</textarea>
+                                                    </div>
+                                                    <div>
+                                                        <input id="sendDiagRequest" class="btn btn-info" type="button" value="Launch" onclick="sendDiagRequest();"/>
+                                                    </div>
                                                 </div>
 											</div>
 										</div>

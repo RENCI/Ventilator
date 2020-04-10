@@ -27,8 +27,8 @@ class Calibration(models.Model):
 
 class Diagnostic(models.Model):
     id =  models.AutoField(primary_key=True)
-    param_name = models.CharField(max_length = 50)
+    test_name = models.CharField(max_length = 50)
     description = models.CharField(max_length = 150)
-    value = models.FloatField()
-    group = models.IntegerField()
+    result = models.FloatField()
+    grouping = models.IntegerField()
     ts = models.DateTimeField(null=True)
