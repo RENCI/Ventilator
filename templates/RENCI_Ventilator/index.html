@@ -4,60 +4,63 @@
 	{% block content %}
 		<script type="text/javascript">
 			// page is rendered, load up the details from the DB
-			$(document).ready(function()
+            $(document).ready(function()
 			{
-			    // The pressure slider handler
-                $pressureValueSpan = $('.pressureValueSpan');
-                $p_value = $('#pressureRange');
-                $pressureValueSpan.html($p_value.val());
-                $p_value.on('input change', () => {
-                $pressureValueSpan.html($p_value.val());
-                });
+                // load up the various configuration items
+			    d3.json('http://localhost:8000/dataReq?type=config', function(error, configData)
+                {
+                    // The pressure slider handler
+                    const pressureValueSpan = $('.pressureValueSpan');
+                    const p_value = $('#pressureRange');
+                    pressureValueSpan.html(p_value.val());
+                    p_value.on('input change', () => {pressureValueSpan.html(p_value.val());});
 
-                // set the initial pressure value
-                $p_value.val("20");
-                $pressureValueSpan.html($p_value.val());
+                    // set the initial pressure value
+                    p_value.val(configData.vent_pressure.value);
+                    pressureValueSpan.html(p_value.val());
 
-                // the respiration slider handler
-                $respirationValueSpan = $('.respirationValueSpan');
-                $r_value = $('#respirationRange');
-                $respirationValueSpan.html($r_value.val());
-                $r_value.on('input change', () => {
-                $respirationValueSpan.html($r_value.val());
-                });
+                    // the respiration slider handler
+                    const respirationValueSpan = $('.respirationValueSpan');
+                    const r_value = $('#respirationRange');
+                    respirationValueSpan.html(r_value.val());
+                    r_value.on('input change', () => {
+                        respirationValueSpan.html(r_value.val());
+                    });
 
-                // set the initial respiration value
-                $r_value.val("13");
-                $respirationValueSpan.html($r_value.val());
+                    // set the initial respiration value
+                    r_value.val(configData.respirations.value);
+                    respirationValueSpan.html(r_value.val());
 
-                // the sensor 1 slider handler
-                $sensor1ValueSpan = $('.sensor1ValueSpan');
-                $s1_value = $('#sensor1Range');
-                $sensor1ValueSpan.html($s1_value.val());
-                $s1_value.on('input change', () => {
-                $sensor1ValueSpan.html($s1_value.val());
-                });
+                    // the sensor 1 slider handler
+                    const sensor1ValueSpan = $('.sensor1ValueSpan');
+                    const s1_value = $('#sensor1Range');
+                    sensor1ValueSpan.html(s1_value.val());
+                    s1_value.on('input change', () => {
+                        sensor1ValueSpan.html(s1_value.val());
+                    });
 
-                // set the initial sensor 1 value
-                $s1_value.val("24");
-                $sensor1ValueSpan.html($s1_value.val());
+                    // set the initial sensor 1 value
+                    s1_value.val("24");
+                    sensor1ValueSpan.html(s1_value.val());
 
-                // the sensor 2 slider handler
-                $sensor2ValueSpan = $('.sensor2ValueSpan');
-                $s2_value = $('#sensor2Range');
-                $sensor2ValueSpan.html($s2_value.val());
-                $s2_value.on('input change', () => {
-                $sensor2ValueSpan.html($s2_value.val());
-                });
+                    // the sensor 2 slider handler
+                    const sensor2ValueSpan = $('.sensor2ValueSpan');
+                    const s2_value = $('#sensor2Range');
+                    sensor2ValueSpan.html(s2_value.val());
+                    s2_value.on('input change', () => {
+                        sensor2ValueSpan.html(s2_value.val());
 
-                // set the initial sensor 1 value
-                $s2_value.val("64");
-                $sensor2ValueSpan.html($s2_value.val());
+                    });
 
-                // create the monitor instances for
-			    instance("#pressureInstance", "Pressure");
-			    instance("#respirationInstance", "Respiration");
-			})
+                    // set the initial sensor 1 value
+                    s2_value.val("64");
+                    sensor2ValueSpan.html(s2_value.val());
+
+                    // create the monitor instances for
+                    instance("#pressureInstance", "Pressure");
+                    instance("#respirationInstance", "Respiration");
+                })
+			});
 
             /**
              * The monitor instance renderer
@@ -65,8 +68,8 @@
              */
             function instance(id, title) {
                 // define some constants
-                var n = 120,
-                    random = d3.randomUniform(0, 20),
+                let n = 120,
+                    // testing only random = d3.randomUniform(0, 20),
                     duration = 1000,
                     now = new Date(Date.now() - duration),
                     data = d3.range(n).map(function () {
@@ -74,28 +77,28 @@
                     });
 
                 // get the svg rendering area
-                var svg = d3.select(id),
+                let svg = d3.select(id),
                     margin = {top: 0, right: 0, bottom: 0, left: 25},
                     width = 370,
                     height = 150,
                     g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
                 // define the x ais
-                var x = d3.scaleTime()
+                let x = d3.scaleTime()
                     .domain([now - (n - 2) * duration, now - duration])
                     .range([0, width]);
 
                 // define the y axis
-                var y = d3.scaleLinear()
+                let y = d3.scaleLinear()
                     .domain([0, 20])
                     .range([height, 20]);
 
                 // define the line properties
-                var line = d3.line()
+                let line = d3.line()
                     .x(function (d, i) {
                         return x(now - (n - 1 - i) * duration);
                     })
-                    .y(function (d, i) {
+                    .y(function (d) {
                         return y(d);
                     }).curve(d3.curveBasis);
 
@@ -113,7 +116,7 @@
                     .text(title);
 
                 // define the x axis animation
-                var axis = g.append("g")
+                let axis = g.append("g")
                     .attr("class", "axis axis--x")
                     .attr("transform", "translate(0," + height + ")")
                     .call(x.axis = d3.axisBottom(x));
@@ -124,7 +127,7 @@
                     .call(d3.axisLeft(y));
 
                 // render the animation area
-                var path = g.append("g")
+                g.append("g")
                     .attr("clip-path", "url(#clip)")
                     .append("path")
                     .datum(data)
@@ -135,7 +138,7 @@
                         .on("start", tick);
 
                 // define the temporal transiton of the x axis and data
-                var transition = d3.select({}).transition()
+                let transition = d3.select({}).transition()
                     .duration(1000)
                     .ease(d3.easeLinear);
 
@@ -146,30 +149,42 @@
                         now = new Date();
                         x.domain([now - (n) * duration, now - duration]);
 
-                        var rnd = Math.round(random());
+                        // testing
+                        // let data_val = Math.round(random());
+                        // console.log("x:" + (now - (n - 2) * duration) + ", y:" + data_val);
 
-                        //console.log("x:" + (now - (n - 2) * duration) + ", y:" + rnd);
+                        // get the data for this instance type
+                        d3.json('http://localhost:8000/dataReq?type=event&param=' + title, function(error, eventData)
+                        {
+                            // did we get something valid
+                            if(error == null && eventData >= 0)
+                            {
+                                // get the data value
+                                let data_val = eventData;
 
-                        // push the value onto the data
-                        data.push(rnd);
+                                // push the value onto the data stack
+                                data.push(data_val);
 
-                        // data line color based on a threshold
-                        if(rnd < 10)
-                            color_class = "darkred";
-                        else
-                            color_class = "darkgreen";
+                                // init the default line color
+                                let line_color = "darkgreen";
 
-                        // redraw the line
-                        svg.select(".line")
-                            .attr("d", line)
-                            .attr("stroke", color_class)
-                            .attr("transform", null);
+                                // data line color change based on a threshold
+                                if (data_val < 10)
+                                    line_color = "darkred";
 
-                        // slide the x-axis left
-                        axis.call(x.axis);
+                                // redraw the line
+                                svg.select(".line")
+                                    .attr("d", line)
+                                    .attr("stroke", line_color)
+                                    .attr("transform", null);
 
-                        // remove the oldest data point that has scrolled off
-                        data.shift();
+                                // slide the x-axis left
+                                axis.call(x.axis);
+
+                                // remove the oldest data point that has scrolled off
+                                data.shift();
+                            }
+                        })
                     }).transition().on("start", tick);
                 }
             }
@@ -209,8 +224,8 @@
 													<span data-balloon="Monitor tab." data-balloon-pos="right">Monitor</span>&nbsp;&nbsp;
 												</div>
 
-												<div id="monitorTarget" style="margin-left: 3px; margin-top: 5px; margin-right: 0px">
-                                                    <svg style="margin-left: 0px" id="pressureInstance" width="403" height="175"></svg>
+												<div id="monitorTarget" style="margin-left: 3px; margin-top: 5px; margin-right: 1px">
+                                                    <svg style="margin-left: 1px" id="pressureInstance" width="403" height="175"></svg>
                                                     <svg style="margin-left: -3px" id="respirationInstance" width="403" height="175"></svg>
                                                 </div>
 											</div>
@@ -229,7 +244,7 @@
                                                     <div class="w-25">
                                                         <label for="pressureRange">Ventilation assist pressure:</label>
                                                         <span class="font-weight-bold text-primary ml-2 pressureValueSpan"></span>
-                                                        <input type="range" class="custom-range" id="pressureRange" min="0" max="100"></input>
+                                                        <input type="range" class="custom-range" id="pressureRange" min="0" max="100" />
                                                     </div>
 
                                                     <div style="margin-left: 30px" class="w-25">
@@ -254,12 +269,12 @@
                                                     <div class="w-25">
                                                         <label for="sensor1Range">Sensor 1:</label>
                                                         <span class="font-weight-bold text-primary ml-2 sensor1ValueSpan"></span>
-                                                        <input type="range" class="custom-range" id="sensor1Range" min="0" max="100"></input>
+                                                        <input type="range" class="custom-range" id="sensor1Range" min="0" max="100" />
                                                     </div>
                                                     <div style="margin-left: 30px" class="w-25">
                                                         <label for="sensor2Range">Sensor 2:</label>
                                                         <span class="font-weight-bold text-primary ml-2 sensor2ValueSpan"></span>
-                                                        <input type="range" class="custom-range" id="sensor2Range" min="0" max="100"></input>
+                                                        <input type="range" class="custom-range" id="sensor2Range" min="0" max="100" />
                                                     </div>
                                                 </div>
 											</div>
@@ -275,7 +290,8 @@
 													<span data-balloon="Diagnostics tab." data-balloon-pos="right">Diagnostics</span>&nbsp;&nbsp;
 												</div>
                                                 <div style="text-align: center">
-                                                    <textarea style="margin-left: 5px; margin-top: 5px; margin-bottom: 5px" id="diagnosticResults" cols="100" rows="5" disabled>Diagnostic results...</textarea>
+                                                    <label for="diagnosticResults">Diagnostic results</label>
+                                                    <textarea style="margin-top: 5px; margin-bottom: 5px" id="diagnosticResults" cols="100" rows="5" disabled>Diagnostic results...</textarea>
                                                 </div>
 											</div>
 										</div>
