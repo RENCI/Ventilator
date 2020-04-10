@@ -9,10 +9,14 @@
             {
                 d3.json('http://localhost:8000/dataReq?type=diags', function(error, diagData)
                 {
+                    // get a control handle
+                    let control = $('#diagnosticResults');
+
                     // start the test
                     let msg = 'Diagnostics initiated, Please wait...';
 
-                    $('#diagnosticResults').val(msg);
+                    // set the message
+                    control.val(msg);
 
                     // did we get some valid data
                     if(error == null && diagData.length > 0)
@@ -26,11 +30,11 @@
                         );
 
                         // send out the final message
-                        $('#diagnosticResults').val(msg);
+                        control.val(msg);
                     }
                     // send out an error message
                     else
-                        $('#diagnosticResults').val(msg + '\n Error performing diagnostics.');
+                        control.val(msg + '\n Error performing diagnostics.');
                 });
             }
 
@@ -382,7 +386,7 @@
 													<span data-balloon="Diagnostics tab." data-balloon-pos="right">Diagnostics</span>&nbsp;&nbsp;
 												</div>
                                                 <div style="margin-left: 5px; margin-top: 5px; margin-bottom: 5px">
-                                                    <div style="text-align: left">
+                                                    <div style="text-align: left; margin-top: 5px">
                                                         <label for="diagnosticResults">Diagnostic results</label>
                                                     </div>
                                                     <div>
