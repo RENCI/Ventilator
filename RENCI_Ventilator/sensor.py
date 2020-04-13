@@ -1,5 +1,5 @@
 import time
-
+import random
 
 # provides access to the sensor data
 class SensorHandler:
@@ -8,12 +8,15 @@ class SensorHandler:
         # init the debug simulator class
         def __init__(self):
             import random
-            self.pressure = random.randrange(975, 1002, 1)
-            self.temperature = random.randrange(20, 30, 1)
-            self.altitude = random.randrange(220, 230, 1)
+            self.pressure = 0
+            self.temperature = 0
+            self.altitude = 0
 
     # init the SensorHandler class
-    def __init__(self, debug_mode: bool = False, type: int = 0, sea_level_pressure: float = 1000.8, standard_units: bool = True):
+    def __init__(self, debug_mode: bool = False, sensor_type: int = 0, sea_level_pressure: float = 1000.8, standard_units: bool = True):
+        # save the debug mode
+        self.debug_mode = debug_mode
+
         # if we are not in debug mode setup the raspberry pi
         if not debug_mode:
             import board
@@ -21,7 +24,7 @@ class SensorHandler:
             import adafruit_bmp3xx
 
             # type 0 is the i2c bus for sensor 0
-            if type == 0:
+            if sensor_type == 0:
                 # i2c bus config
                 i2c = busio.I2C(board.SCL, board.SDA)
                 self.bmp = adafruit_bmp3xx.BMP3XX_I2C(i2c)
@@ -34,6 +37,7 @@ class SensorHandler:
                 cs = digitalio.DigitalInOut(board.D5)
                 self.bmp = adafruit_bmp3xx.BMP3XX_SPI(spi, cs)
         else:
+            # load up the demo bmp emulator
             self.bmp = self.DebugBmp()
 
         # set the sensor sampling rates
@@ -54,12 +58,16 @@ class SensorHandler:
     #################
     # get pressure
     def get_pressure(self):
-        # in standard mode return psi
-        if self.standard_units:
-            return self.get_psi_pressure()
-        # else return hpa
+        # if in debug mode return a random number in a reasonable range
+        if self.debug_mode:
+            return random.randrange(13, 16, 2)
         else:
-            return self.get_hpa_pressure()
+            # in standard mode return psi
+            if self.standard_units:
+                return self.get_psi_pressure()
+            # else return hpa
+            else:
+                return self.get_hpa_pressure()
 
     # get temperature
     def get_temperature(self):

@@ -32,4 +32,5 @@ sequence of events for updating the DB model
 setup sensor references (i2c)
 	https://learn.adafruit.com/adafruit-bmp388/python-circuitpython
 	https://learn.adafruit.com/adafruits-raspberry-pi-lesson-4-gpio-setup/overview
-	i had to put sudo chmod 666 /dev/i2c-1 in .bashrc to get by a access permission issue on the web site
+	i had to put sudo chmod 666 /dev/i2c-1, /dev/spidev0.0 and /dev/spidev0.1 in .bashrc to get by a bus access permission issue on the web site
+	also had to modify the uwsgi ini file (django.ini) to use the user "pi" to get by a permissions error in the GPIO library at RPi.GPIO
