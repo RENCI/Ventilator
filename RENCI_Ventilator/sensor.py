@@ -111,12 +111,12 @@ class SensorHandler:
 # debug testing
 if __name__ == '__main__':
     # fire up the class to read the sensor
-    sh = SensorHandler(True)
+    sh = SensorHandler(False)
 
     # forever
     while True:
         # get the temperature
-        temperature = sh.get_temperature(False)
+        temperature = sh.get_temperature()
 
         # get the altitude
         altitude = sh.get_altitude()
