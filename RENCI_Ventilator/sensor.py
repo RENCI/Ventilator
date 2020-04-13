@@ -34,6 +34,10 @@ class SensorHandler:
         self.bmp.sea_level_pressure = sea_level_pressure
         self.standard_units = standard_units
 
+    # TODO: return the result of diagnostics
+    def diagnotics(self):
+        return True
+
     #################
     # declare methods that will get sensor data in selected units
     #################
