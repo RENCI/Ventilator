@@ -28,3 +28,7 @@ sequence of events for updating the DB model
 		optional to see whats going to happen to the DB: manage.py sqlmigrate
 		optional to show whats going to migrate: manage.py showmigrations
 	run: manage.py migrate
+
+setup sensor references (i2c)
+	https://learn.adafruit.com/adafruit-bmp388/python-circuitpython
+	https://learn.adafruit.com/adafruits-raspberry-pi-lesson-4-gpio-setup/overview
