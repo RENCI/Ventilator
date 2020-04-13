@@ -13,22 +13,29 @@ class SensorHandler:
             self.altitude = random.randrange(220, 230, 1)
 
     # init the SensorHandler class
-    def __init__(self, debug_mode: bool = False, sea_level_pressure: float = 1000.8, standard_units: bool = True):
+    def __init__(self, debug_mode: bool = False, type: int = 0, sea_level_pressure: float = 1000.8, standard_units: bool = True):
         # if we are not in debug mode setup the raspberry pi
         if not debug_mode:
             import board
             import busio
             import adafruit_bmp3xx
 
-            # i2c init
-            i2c = busio.I2C(board.SCL, board.SDA)
-            self.bmp = adafruit_bmp3xx.BMP3XX_I2C(i2c)
+            if type == 0:
+                # i2c init
+                i2c = busio.I2C(board.SCL, board.SDA)
+                self.bmp = adafruit_bmp3xx.BMP3XX_I2C(i2c)
+            else:
+                import digitalio
 
-            # set the sensor sampling rates
-            self.bmp.pressure_oversampling = 8
-            self.bmp.temperature_oversampling = 2
+                spi = busio.SPI(board.SCK, board.MOSI, board.MISO)
+                cs = digitalio.DigitalInOut(board.D5)
+                self.bmp = adafruit_bmp3xx.BMP3XX_SPI(spi, cs)
         else:
             self.bmp = self.DebugBmp()
+
+        # set the sensor sampling rates
+        self.bmp.pressure_oversampling = 8
+        self.bmp.temperature_oversampling = 2
 
         # init the other params
         self.bmp.sea_level_pressure = sea_level_pressure

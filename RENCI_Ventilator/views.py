@@ -5,8 +5,12 @@ from django.http import HttpResponse
 from django.db.models import QuerySet
 from django.core import serializers
 from RENCI_Ventilator.models import Configuration, Calibration, Diagnostic  # , Pressure, Respiration
-from RENCI_Ventilator.utils import run_diagnostic, get_pressure_data, get_respiration_data
+from RENCI_Ventilator.utils import run_diagnostic, get_respiration_data
+from RENCI_Ventilator.sensor import SensorHandler
 
+# start up the sensor handlers
+sh_pressure = SensorHandler(False, 0)
+sh_respiration = SensorHandler(False, 1)
 
 # main entry point
 def index(request):
@@ -125,13 +129,13 @@ def data_req(request):
                     # tbl_obj = Pressure
 
                     # get data from real sensor
-                    sensor_value = get_pressure_data()
+                    sensor_value = sh_pressure.get_pressure()
                 else:
                     # save the target DB table
                     # tbl_obj = Respiration
 
                     # get data from real sensor
-                    sensor_value = get_respiration_data()
+                    sensor_value = sh_respiration.get_pressure()
 
                 # save the sensor data
                 ret_val = sensor_value
