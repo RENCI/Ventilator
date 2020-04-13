@@ -10,7 +10,7 @@ from RENCI_Ventilator.sensor import SensorHandler
 
 # start up the sensor handlers
 sh_pressure = SensorHandler(False, 0)
-sh_respiration = SensorHandler(False, 1)
+#sh_respiration = SensorHandler(False, 1)
 
 # main entry point
 def index(request):
