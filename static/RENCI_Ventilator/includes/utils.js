@@ -6,7 +6,7 @@ function sendDiagRequest()
         // get a control handle
         let control = $('#diagnosticResults');
 
-        // start the test
+        // start the tests
         let msg = 'Diagnostics initiated, Please wait...';
 
         // set the message
