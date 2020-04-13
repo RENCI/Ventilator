@@ -13,7 +13,7 @@ class SensorHandler:
             self.altitude = random.randrange(220, 230, 1)
 
     # init the SensorHandler class
-    def __init__(self, debug_mode: False, sea_level_pressure: float = 1000.8, standard_units: bool = True):
+    def __init__(self, debug_mode: bool = False, sea_level_pressure: float = 1000.8, standard_units: bool = True):
         # if we are not in debug mode setup the raspberry pi
         if not debug_mode:
             import board
@@ -35,7 +35,8 @@ class SensorHandler:
         self.standard_units = standard_units
 
     # TODO: return the result of diagnostics
-    def diagnotics(self):
+    @staticmethod
+    def diagnotics():
         return True
 
     #################
@@ -108,10 +109,11 @@ class SensorHandler:
     def set_sea_level_pressure(self, sea_level_pressure):
         self.bmp.sea_level_pressure = sea_level_pressure
 
+
 # debug testing
 if __name__ == '__main__':
     # fire up the class to read the sensor
-    sh = SensorHandler(False)
+    sh = SensorHandler(True)
 
     # forever
     while True:

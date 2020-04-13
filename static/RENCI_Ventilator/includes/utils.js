@@ -128,5 +128,4 @@ function load_settings()
         s2_value.val(calibData.sensor2.value);
         sensor2ValueSpan.html(s2_value.val());
     });
-
 }
