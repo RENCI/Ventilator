@@ -112,7 +112,7 @@ if __name__ == '__main__':
     # forever
     while True:
         # get the temperature
-        temperature = sh.get_temperature(True)
+        temperature = sh.get_temperature(False)
 
         # get the altitude
         altitude = sh.get_altitude()
