@@ -183,6 +183,8 @@ if __name__ == '__main__':
     print(f'Current mode: {sh1.debug_mode}, Sensor: {sh1.sensor_type}')
     print(f'standard units: {sh1.standard_units}, Sea level pressure: {sh1.bmp.sea_level_pressure}')
 
+    count = 1
+
     # forever
     while True:
         try:
@@ -195,8 +197,11 @@ if __name__ == '__main__':
             #altitude1 = sh1.get_altitude()
             psi1 = sh1.get_pressure()
 
-            print(f'\nSensor 0 - Pressure: {psi0}') #  Temperature: {temperature0}  Altitude (M): {altitude0}
+            print(f'\nTest number: {count}')
+            print(f'Sensor 0 - Pressure: {psi0}') #  Temperature: {temperature0}  Altitude (M): {altitude0}
             print(f'Sensor 1 - Pressure: {psi1}') #  Temperature: {temperature1}  Altitude (M): {altitude1}
+
+            count = count + 1
         except Exception as e:
             print(f'Exception: {e}')
 
