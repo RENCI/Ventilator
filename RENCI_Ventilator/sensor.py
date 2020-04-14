@@ -198,8 +198,16 @@ if __name__ == '__main__':
             psi1 = sh1.get_pressure()
 
             print(f'\nTest number: {count}')
-            print(f'Sensor 0 - Pressure: {psi0}') #  Temperature: {temperature0}  Altitude (M): {altitude0}
-            print(f'Sensor 1 - Pressure: {psi1}') #  Temperature: {temperature1}  Altitude (M): {altitude1}
+
+            if psi1 < 0:
+                print(f'Negative pressure reading for sensor 0')
+            else:
+                print(f'Sensor 0 - Pressure: {psi0}') #  Temperature: {temperature0}  Altitude (M): {altitude0}
+
+            if psi1 < 0:
+                print(f'Negative pressure reading for sensor 1')
+            else:
+                print(f'Sensor 1 - Pressure: {psi1}') #  Temperature: {temperature1}  Altitude (M): {altitude1}
 
             count = count + 1
         except Exception as e:
