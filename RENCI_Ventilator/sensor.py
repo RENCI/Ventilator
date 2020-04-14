@@ -187,16 +187,16 @@ if __name__ == '__main__':
     while True:
         try:
             # get the temperature
-            temperature0 = sh0.get_temperature()
-            altitude0 = sh0.get_altitude()
+            #temperature0 = sh0.get_temperature()
+            #altitude0 = sh0.get_altitude()
             psi0 = sh0.get_pressure()
 
-            temperature1 = sh1.get_temperature()
-            altitude1 = sh1.get_altitude()
+            #temperature1 = sh1.get_temperature()
+            #altitude1 = sh1.get_altitude()
             psi1 = sh1.get_pressure()
 
-            print(f'\nSensor 0 - Pressure: {psi0}  Temperature: {temperature0}  Altitude (M): {altitude0}')
-            print(f'Sensor 1 - Pressure: {psi1}  Temperature: {temperature1}  Altitude (M): {altitude1}')
+            print(f'\nSensor 0 - Pressure: {psi0}') #  Temperature: {temperature0}  Altitude (M): {altitude0}
+            print(f'Sensor 1 - Pressure: {psi1}') #  Temperature: {temperature1}  Altitude (M): {altitude1}
         except Exception as e:
             print(f'Exception: {e}')
 
