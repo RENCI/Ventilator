@@ -199,12 +199,12 @@ if __name__ == '__main__':
 
             print(f'\nTest number: {count}')
 
-            if psi0 < 0:
+            if psi0 < 14:
                 print(f'Negative pressure reading for sensor 0')
             else:
                 print(f'Sensor 0 - Pressure: {psi0}') #  Temperature: {temperature0}  Altitude (M): {altitude0}
 
-            if psi1 < 0:
+            if psi1 < 14:
                 print(f'Negative pressure reading for sensor 1')
             else:
                 print(f'Sensor 1 - Pressure: {psi1}') #  Temperature: {temperature1}  Altitude (M): {altitude1}
