@@ -49,7 +49,7 @@ function saveSetting(table)
     // put in the specific params for this area
     if (table === 'config')
     {
-        qs = qs + 'pressure=' + $('#pressureRange').val() + '~' + 'respiration=' + $('#respirationRange').val();
+        qs = qs + 'pressure=' + $('#pressureRange').val() + '~' + 'respiration=' + $('#respirationRange').val() + '~' + 'demo_mode=' + $('#demo_mode').val();
         msgTarget = $('#saveConfigMsg');
     }
     else

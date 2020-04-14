@@ -184,17 +184,15 @@
                     <div class="card" style="border: 1px;">
                         <div class="card-body">
                             <div id="tabContent" class="tab-content">
-
-								<div id="monitorTab" class="tab-pane fade show active" role="tabpanel">
-									<div class="row">
-										<div class="col-md-12">
-											<div class="card">
-												<div class="card-header">
-													<span>Monitor</span>
+                                <div id="monitorTab" class="tab-pane fade show active" role="tabpanel">
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <div class="card">
+                                                <div class="card-header">
+                                                    <span>Monitor</span>
                                                     <button id="pause" type="button" style="margin-left: 10px" value="pause" class="btn btn-success btn-xs" onclick="togglePause();">Pause</button>
                                                 </div>
-
-												<div id="monitorTarget" style="margin-left: 1px; margin-top: 5px; margin-right: 1px">
+                                                <div id="monitorTarget" style="margin-left: 1px; margin-top: 5px; margin-right: 1px">
                                                     <svg style="margin-left: 3px" id="pressureInstance" width="400" height="185"></svg>
                                                     <svg style="margin-left: -3px" id="respirationInstance" width="400" height="185"></svg>
                                                 </div>
@@ -205,26 +203,28 @@
 
 								<div id="configurationTab" class="tab-pane fade show" role="tabpanel">
 									<div class="row">
-										<div class="col-md-12">
+										<div class="col-md-8">
 											<div class="card">
 												<div class="card-header">
 													<span>Configuration</span>&nbsp;&nbsp;
 												</div>
-                                                <div style="margin-left: 10px" class="d-flex justify-content-left my-2">
+                                                <div style="margin-left: 10px; margin-right: 10px" class="d-flex justify-content-left my-2">
                                                     <div>
                                                         <label for="pressureRange">Pressure warning:</label>
                                                         <span class="font-weight-bold text-primary ml-2 pressureValueSpan"></span>
                                                         <input type="range" class="custom-range" id="pressureRange" min="0" max="100" />
                                                     </div>
-
                                                     <div style="margin-left: 30px">
                                                         <label for="respirationRange">Respiration warning:</label>
                                                         <span class="font-weight-bold text-primary ml-2 respirationValueSpan"></span>
                                                         <input type="range" class="custom-range" id="respirationRange" min="5" max="20" />
                                                     </div>
                                                 </div>
-                                                <div style="margin-left:5px; margin-bottom:5px">
-                                                    <input id="saveConfiguration" class="btn btn-info" type="button" value="Save" onclick="saveSetting('config');" />
+                                                <div style="margin-left:5px">
+                                                    <label><input type="checkbox" id="demo_mode" /> Demo mode (requires save and reboot)</label>
+                                                </div>
+                                                <div style="margin-left:5px; margin-bottom:5px; margin-top:5px">
+                                                    <button id="saveConfiguration" type="button" class="btn btn-info btn-xs" onclick="saveSetting('config');">Save</button>
                                                     <div id="saveConfigMsg" style="margin-left: 5px; margin-top: 15px; margin-bottom: 5px; display: none;"></div>
                                                 </div>
 											</div>
@@ -234,12 +234,12 @@
 
 								<div id="calibrationTab" class="tab-pane fade show" role="tabpanel">
 									<div class="row">
-										<div class="col-md-12">
+										<div class="col-md-8">
 											<div class="card">
 												<div class="card-header">
 													<span>Calibration</span>&nbsp;&nbsp;
 												</div>
-                                                <div style="margin-left: 10px" class="d-flex justify-content-left my-2">
+                                                <div style="margin-left: 10px; margin-right: 10px" class="d-flex justify-content-left my-2">
                                                     <div>
                                                         <label for="sensor1Range">Sensor 1:</label>
                                                         <span class="font-weight-bold text-primary ml-2 sensor1ValueSpan"></span>

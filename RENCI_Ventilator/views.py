@@ -5,40 +5,18 @@ from django.http import HttpResponse
 from django.db.models import QuerySet
 from django.core import serializers
 from RENCI_Ventilator.models import Configuration, Calibration, Diagnostic  # , Pressure, Respiration
-from RENCI_Ventilator.utils import run_diagnostic, get_respiration_data
+from RENCI_Ventilator.utils import run_diagnostic, get_settings
 from RENCI_Ventilator.sensor import SensorHandler
 
 # start up the sensor handlers
-sh_pressure = SensorHandler(False, 0)
-sh_respiration = SensorHandler(False, 1)
+sh_pressure = SensorHandler(0)
+sh_respiration = SensorHandler(1)
+
 
 # main entry point
 def index(request):
     # render the main page
     return render(request, 'RENCI_Ventilator/index.html', {})
-
-
-# gets the list of settings for the type passed
-def get_settings(obj) -> dict:
-    # get the data
-    config_items: QuerySet = obj.objects.all()
-
-    # create a list for the data
-    settings: dict = {}
-
-    # convert each record into a list of dicts
-    for item in config_items:
-        # make the conversion
-        settings.update({item.param_name: {
-            'id': item.id,
-            'param_name': item.param_name,
-            'description': item.description,
-            'value': item.value,
-            'ts': str(item.ts)
-        }})
-
-    # convert the data to json format
-    return settings
 
 
 # gets the running instances
@@ -140,7 +118,7 @@ def data_req(request):
                 # save the sensor data
                 ret_val = sensor_value
 
-                # TODO: persist this data to the database
+                # TODO: persist this data to the database?
 
             else:
                 ret_val = 'Invalid or missing event param.'

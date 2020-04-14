@@ -1,5 +1,7 @@
 import time
 import random
+from RENCI_Ventilator.utils import get_settings
+from RENCI_Ventilator.models import Configuration
 
 # provides access to the sensor data
 class SensorHandler:
@@ -11,15 +13,17 @@ class SensorHandler:
     class DebugBmp:
         # init the debug simulator class
         def __init__(self):
-            import random
             self.pressure = 0
             self.temperature = 0
             self.altitude = 0
 
     # init the SensorHandler class
-    def __init__(self, debug_mode: bool = False, sensor_type: int = 0, sea_level_pressure: float = 1000.8, standard_units: bool = True):
+    def __init__(self, sensor_type: int = 0, sea_level_pressure: float = 1000.8, standard_units: bool = True):
+        # get the configuration settings
+        settings = get_settings(Configuration)
+
         # save the debug mode
-        self.debug_mode = debug_mode
+        self.debug_mode = bool(settings['demo_mode']['value'])
 
         # save the sensor type
         self.sensor_type = sensor_type
@@ -28,13 +32,13 @@ class SensorHandler:
         self.sample_counter = 0
 
         # if we are not in debug mode setup the raspberry pi
-        if not debug_mode:
+        if not self.debug_mode:
             import board
             import busio
             import adafruit_bmp3xx
 
             # type 0 is the i2c bus for sensor 0
-            if sensor_type == 0:
+            if sensor_type == SensorHandler.SENSOR_PRESSURE:
                 # i2c bus config
                 i2c = busio.I2C(board.SCL, board.SDA)
                 self.bmp = adafruit_bmp3xx.BMP3XX_I2C(i2c)
@@ -68,13 +72,13 @@ class SensorHandler:
     #################
 
     # demo pressure waveform data, each line is 1 second at a 25% UI duty cycle
-    demo_pressure_samples = [10, 20, 22, 25,
-                             25, 26, 25, 21,
-                             20, 15, 13, 10,
-                             9, 8, 7, 8,
-                             7, 6, 6, 6,
+    demo_pressure_samples = [10, 20, 22, 27,
+                             26, 26, 25, 24,
+                             19, 12, 9, 8,
+                             8, 7, 6, 6,
                              6, 5, 5, 5,
                              5, 5, 4, 5,
+                             5, 4, 5, 5,
                              4, 5, 0, -1]
 
     # the UI is set to sample every 500ms. so divide by two to get the number of seconds
