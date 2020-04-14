@@ -188,26 +188,26 @@ if __name__ == '__main__':
     # forever
     while True:
         try:
+            print(f'\nTest number: {count}')
+
             # get the temperature
-            #temperature0 = sh0.get_temperature()
-            #altitude0 = sh0.get_altitude()
+            temperature0 = sh0.get_temperature()
+            altitude0 = sh0.get_altitude()
             psi0 = sh0.get_pressure()
 
-            #temperature1 = sh1.get_temperature()
-            #altitude1 = sh1.get_altitude()
+            temperature1 = sh1.get_temperature()
+            altitude1 = sh1.get_altitude()
             psi1 = sh1.get_pressure()
-
-            print(f'\nTest number: {count}')
 
             if psi0 < 14 or psi0 > 15:
                 print(f'Abnormal pressure reading for sensor 0: {psi0}')
             else:
-                print(f'Sensor 0 - Pressure: {psi0}') #  Temperature: {temperature0}  Altitude (M): {altitude0}
+                print(f'Sensor 0 - Pressure: {psi0}  Temperature: {temperature0}  Altitude (M): {altitude0}')
 
             if psi1 < 14 or psi1 > 15:
                 print(f'Abnormal pressure reading for sensor 1: {psi1}')
             else:
-                print(f'Sensor 1 - Pressure: {psi1}') #  Temperature: {temperature1}  Altitude (M): {altitude1}
+                print(f'Sensor 1 - Pressure: {psi1}  Temperature: {temperature1}  Altitude (M): {altitude1}')
 
             count = count + 1
         except Exception as e:
