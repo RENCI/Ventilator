@@ -172,20 +172,30 @@ class SensorHandler:
 # debug testing
 if __name__ == '__main__':
     # fire up the class to read the sensor
-    sh = SensorHandler(True)
+    sh0 = SensorHandler(debug_mode=False, sensor_type=0)
+    sh1 = SensorHandler(debug_mode=False, sensor_type=1)
+
+    print("Sensor 0")
+    print(f'Current mode: {sh0.debug_mode}, Sensor: {sh0.sensor_type}')
+    print(f'standard units: {sh0.standard_units}, Sea level pressure: {sh0.bmp.sea_level_pressure}')
+
+    print("\nSensor 1")
+    print(f'Current mode: {sh1.debug_mode}, Sensor: {sh1.sensor_type}')
+    print(f'standard units: {sh1.standard_units}, Sea level pressure: {sh1.bmp.sea_level_pressure}')
 
     # forever
     while True:
         # get the temperature
-        temperature = sh.get_temperature()
+        temperature0 = sh0.get_temperature()
+        altitude0 = sh0.get_altitude()
+        psi0 = sh0.get_pressure()
 
-        # get the altitude
-        altitude = sh.get_altitude()
+        temperature1 = sh1.get_temperature()
+        altitude1 = sh1.get_altitude()
+        psi1 = sh1.get_pressure()
 
-        # get the ambient pressure in psi
-        psi = sh.get_pressure()
-
-        print(f'Pressure: {psi}  Temperature: {temperature}  Altitude (M): {altitude}')
+        print(f'Sensor 0 - Pressure: {psi0}  Temperature: {temperature0}  Altitude (M): {altitude0}')
+        print(f'Sensor 1 - Pressure: {psi1}  Temperature: {temperature1}  Altitude (M): {altitude1}')
 
         # do it again in a second
         time.sleep(2)
