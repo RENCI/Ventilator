@@ -201,13 +201,13 @@ if __name__ == '__main__':
 
             if psi0 < 14 or psi0 > 15:
                 print(f'Abnormal pressure reading for sensor 0: {psi0}')
-            #else:
-            #    print(f'Sensor 0 - Pressure: {psi0}') #  Temperature: {temperature0}  Altitude (M): {altitude0}
+            else:
+                print(f'Sensor 0 - Pressure: {psi0}') #  Temperature: {temperature0}  Altitude (M): {altitude0}
 
             if psi1 < 14 or psi1 > 15:
                 print(f'Abnormal pressure reading for sensor 1: {psi1}')
-            #else:
-            #    print(f'Sensor 1 - Pressure: {psi1}') #  Temperature: {temperature1}  Altitude (M): {altitude1}
+            else:
+                print(f'Sensor 1 - Pressure: {psi1}') #  Temperature: {temperature1}  Altitude (M): {altitude1}
 
             count = count + 1
         except Exception as e:
