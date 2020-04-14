@@ -201,4 +201,4 @@ if __name__ == '__main__':
             print(f'Exception: {e}')
 
         # do it again in a second
-        time.sleep(2)
+        time.sleep(1)
