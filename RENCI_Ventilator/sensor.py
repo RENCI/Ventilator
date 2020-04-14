@@ -3,6 +3,10 @@ import random
 
 # provides access to the sensor data
 class SensorHandler:
+    # define instance type constants
+    SENSOR_PRESSURE = 0
+    SENSOR_RESPIRATION = 1
+
     # debug class that simulates the real sensor
     class DebugBmp:
         # init the debug simulator class
@@ -16,6 +20,12 @@ class SensorHandler:
     def __init__(self, debug_mode: bool = False, sensor_type: int = 0, sea_level_pressure: float = 1000.8, standard_units: bool = True):
         # save the debug mode
         self.debug_mode = debug_mode
+
+        # save the sensor type
+        self.sensor_type = sensor_type
+
+        # counter for fake breathing waveform data
+        self.sample_counter = 0
 
         # if we are not in debug mode setup the raspberry pi
         if not debug_mode:
@@ -50,17 +60,48 @@ class SensorHandler:
 
     # TODO: return the result of diagnostics
     @staticmethod
-    def diagnotics():
+    def diagnostics():
         return True
 
     #################
     # declare methods that will get sensor data in selected units
     #################
+
+    # demo pressure waveform data, each line is 1 second at a 25% UI duty cycle
+    demo_pressure_samples = [10, 20, 22, 25,
+                             25, 26, 25, 21,
+                             20, 15, 13, 10,
+                             9, 8, 7, 8,
+                             7, 6, 6, 6,
+                             6, 5, 5, 5,
+                             5, 5, 4, 5,
+                             4, 5, 0, -1]
+
+    # the UI is set to sample every 500ms. so divide by two to get the number of seconds
+    # so the respiration/min cycle rate is (60 / (the number of samples / second))
+    demo_cycle_duration = int(60/(len(demo_pressure_samples)/4))
+
     # get pressure
     def get_pressure(self):
         # if in debug mode return a random number in a reasonable range
         if self.debug_mode:
-            return random.randrange(13, 16, 2)
+            # do the x-axis points
+            if self.sensor_type == SensorHandler.SENSOR_PRESSURE:
+                # reset to the beginning if needed
+                if self.sample_counter >= len(self.demo_pressure_samples):
+                    self.sample_counter = 0
+
+                # get the next pressure data point with a little variation
+                ret_val = self.demo_pressure_samples[self.sample_counter] + random.randrange(1, 2, 1)
+
+                # go to the next data point
+                self.sample_counter = self.sample_counter + 1
+            # else return the respiration rate
+            else:
+                # make the respiration rate a little variable for effect
+                ret_val = random.randrange(self.demo_cycle_duration-1, self.demo_cycle_duration+1, 1)
+
+            return ret_val
         else:
             # in standard mode return psi
             if self.standard_units:

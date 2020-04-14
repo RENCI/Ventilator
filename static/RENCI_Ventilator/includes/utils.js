@@ -1,3 +1,7 @@
+/**
+ * utility functions used in the configuration, rendering and data gathering
+ */
+
 // sends a request for diagnostics
 function sendDiagRequest()
 {
@@ -128,4 +132,35 @@ function load_settings()
         s2_value.val(calibData.sensor2.value);
         sensor2ValueSpan.html(s2_value.val());
     });
+}
+
+// global flag for pausing the wave monitor
+var monitorPause = 0;
+
+// toggles the monitor data retrieval
+function togglePause()
+{
+    theBtn = $('#pause');
+
+    // if we are running
+    if(monitorPause == 0)
+    {
+        // set flag to pause
+        monitorPause = 1;
+
+        // update the view
+        theBtn.removeClass("btn-success");
+        theBtn.addClass("btn-danger");
+        theBtn.html('Paused');
+    }
+    else
+    {
+        // set flag to run
+        monitorPause = 0;
+
+        // update the view
+        theBtn.removeClass("btn-danger");
+        theBtn.addClass("btn-success");
+        theBtn.html('Pause');
+    }
 }

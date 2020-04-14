@@ -10,10 +10,11 @@
                  * The monitor instance renderer
                  *  id - The id of the region to render onto
                  *  title - the title shown above the graph. also used for data request type
-                 *  y_scale - the range ticks on the y axis
-                 *  duration - the refresh rate
+                 *  y_min - the lower bound of the y_axis
+                 *  y_max - the upper bound of the y axis
+                 *  duration - the data gathering rate in milliseconds
                  */
-                const instance = (id, title, y_ticks, duration) => {
+                const instance = (id, title, y_min, y_max, duration) => {
                     // define some constants
                     let n = 120,
                         now = new Date(Date.now() - duration),
@@ -28,20 +29,20 @@
                         height = 160,
                         g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-                    // define the x ais
+                    // define the x axis
                     let x = d3.scaleTime()
-                        .domain([now - (n - 2) * duration, now - duration])
+                        .domain([now - (n - 2) * duration, now - duration]) // duration
                         .range([0, width]);
 
                     // define the y axis
                     let y = d3.scaleLinear()
-                        .domain([0, y_ticks])
+                        .domain([y_min, y_max])
                         .range([height, 20]);
 
-                    // define the line properties
+                    // define the line properties, the curve basis smooths out the line
                     let line = d3.line()
                         .x(function (d, i) {
-                            return x(now - (n - 1 - i) * duration);
+                            return x(now - (n - 1 - i) * duration); // duration
                         })
                         .y(function (d) {
                             return y(d);
@@ -52,13 +53,19 @@
                         .attr("id", "clip")
                         .append("rect")
                         .attr("width", width)
-                        .attr("height", height);
+                        .attr("height", height+100);
 
-                    // throw up the grpah title
+                    // display the graph title
                     g.append("text")
                         .attr("transform", "translate(" + (width/2.5) + ", 17)")
                         .attr("fill", "darkblue")
-                        .text(title);
+                        .text(function()
+                                {
+                                    if(title === 'Pressure')
+                                        return (title + ' (P-circ)');
+                                    else
+                                        return (title + ' (per min)');
+                                });
 
                     // define the x axis animation
                     let axis = g.append("g")
@@ -73,12 +80,12 @@
 
                     // render the animation area
                     g.append("g")
-                        .attr("clip-path", "url(#clip)")
+                            .attr("clip-path", "url(#clip)")
                         .append("path")
-                        .datum(data)
-                        .attr("class", "line")
+                            .datum(data)
+                            .attr("class", "line")
                         .transition()
-                            .duration(duration)
+                            .duration(500) // duration
                             .ease(d3.easeLinear)
                             .on("start", tick);
 
@@ -89,56 +96,57 @@
 
                     // function to perform the temporal updates
                     function tick() {
-                        transition = transition.each(function () {
-                            // update the domains
-                            now = new Date();
-                            x.domain([now - (n) * duration, now - duration]);
-
-                            // testing
-                            // let data_val = Math.round(random());
-                            // console.log("x:" + (now - (n - 2) * duration) + ", y:" + data_val);
-
-                            // get the data for this instance type
-                            d3.json('http://localhost:8000/dataReq?type=event&param=' + title, function(error, eventData)
+                        transition = transition.each(function ()
+                        {
+                            // check to see if we are paused
+                            if(monitorPause == 0)
                             {
-                                // did we get something valid
-                                if(error == null && eventData >= 0)
+                                // update the domains
+                                now = new Date();
+                                x.domain([now - (n) * duration, now - duration]);
+
+                                // get the data for this instance type
+                                d3.json('http://localhost:8000/dataReq?type=event&param=' + title, function (error, eventData)
                                 {
-                                    // get the data value
-                                    let data_val = eventData;
+                                    // did we get an error
+                                    if (error == null)
+                                    {
+                                        // get the data value
+                                        let data_val = eventData;
 
-                                    // push the value onto the data stack
-                                    data.push(data_val);
+                                        // declare the threshold
+                                        let threshold;
 
-                                    // init the default line color
-                                    let line_color = "darkgreen";
+                                        // get the threshold for the target view
+                                        if (title === 'Pressure')
+                                            threshold = Number($('#pressureRange').val());
+                                        else
+                                            threshold = Number($('#respirationRange').val());
 
-                                    // declare the threshold
-                                    let threshold;
+                                        // init the default line color
+                                        let line_color = "darkgreen";
 
-                                    // get the threshold for the target view
-                                    if(title === 'Pressure')
-                                        threshold = Number($('#pressureRange').val());
-                                    else
-                                        threshold = Number($('#respirationRange').val());
+                                        // data line color change based on a threshold
+                                        if (data_val > threshold)
+                                            line_color = "darkred";
 
-                                    // data line color change based on a threshold
-                                    if (data_val > threshold)
-                                        line_color = "darkred";
+                                        // push the value onto the data stack
+                                        data.push(data_val);
 
-                                    // redraw the line
-                                    svg.select(".line")
-                                        .attr("d", line)
-                                        .attr("stroke", line_color)
-                                        .attr("transform", null);
+                                        // redraw the line
+                                        svg.select(".line")
+                                            .attr("d", line)
+                                            .attr("stroke", line_color)
+                                            .attr("transform", null);
 
-                                    // slide the x-axis left
-                                    axis.call(x.axis);
+                                        // slide the x-axis to the left
+                                        axis.call(x.axis);
 
-                                    // remove the oldest data point that has scrolled off
-                                    data.shift();
-                                }
-                            })
+                                        // remove the oldest data point that has scrolled off
+                                        data.shift();
+                                    }
+                                })
+                            }
                         }).transition().on("start", tick);
                     }
                 };
@@ -147,27 +155,27 @@
                 load_settings();
 
                 // create the monitor instances for each type
-                instance("#pressureInstance", "Pressure", 50, 500);
-                instance("#respirationInstance", "Respiration", 20, 1000);
+                instance("#pressureInstance", "Pressure", -5, 50, 250);
+                instance("#respirationInstance", "Respiration", 0, 20, 1000);
 			});
 		</script>
 
 		<div id="cardBody" class="card-body">
 			<ul class="nav nav-tabs" id="navTabs" role="tablist" style="margin-left:10px; margin-bottom: 7px">
 				<li class="nav-item">
-					<a data-balloon="This area is for monitoring the ventilator" data-balloon-pos="right" class="nav-link active" id="monitor-Tab" data-toggle="tab" href="#monitorTab" role="tab">Monitor</a>
+					<a class="nav-link active" id="monitor-Tab" data-toggle="tab" href="#monitorTab" role="tab">Monitor</a>
 				</li>
 
 				<li class="nav-item">
-                    <a data-balloon="This area is for viewing configuration items" data-balloon-pos="up" class="nav-link" id="configuration-tab" data-toggle="tab" href="#configurationTab" role="tab">Configuration</a>
+                    <a class="nav-link" id="configuration-tab" data-toggle="tab" href="#configurationTab" role="tab">Configuration</a>
 				</li>
 
 				<li class="nav-item">
-                    <a data-balloon="This area is for viewing configuration items" data-balloon-pos="up" class="nav-link" id="calibration-tab" data-toggle="tab" href="#calibrationTab" role="tab">Calibration</a>
+                    <a class="nav-link" id="calibration-tab" data-toggle="tab" href="#calibrationTab" role="tab">Calibration</a>
 				</li>
 
 				<li class="nav-item">
-                    <a data-balloon="This area is for viewing configuration items" data-balloon-pos="up" class="nav-link" id="diagnostics-tab" data-toggle="tab" href="#diagnosticsTab" role="tab">Diagnostics</a>
+                    <a class="nav-link" id="diagnostics-tab" data-toggle="tab" href="#diagnosticsTab" role="tab">Diagnostics</a>
 				</li>
             </ul>
 
@@ -182,8 +190,9 @@
 										<div class="col-md-12">
 											<div class="card">
 												<div class="card-header">
-													<span data-balloon="Monitor tab." data-balloon-pos="right">Monitor</span>&nbsp;&nbsp;
-												</div>
+													<span>Monitor</span>
+                                                    <button id="pause" type="button" style="margin-left: 10px" value="pause" class="btn btn-success btn-xs" onclick="togglePause();">Pause</button>
+                                                </div>
 
 												<div id="monitorTarget" style="margin-left: 1px; margin-top: 5px; margin-right: 1px">
                                                     <svg style="margin-left: 3px" id="pressureInstance" width="400" height="185"></svg>
@@ -199,7 +208,7 @@
 										<div class="col-md-12">
 											<div class="card">
 												<div class="card-header">
-													<span data-balloon="Configuration tab." data-balloon-pos="right">Configuration</span>&nbsp;&nbsp;
+													<span>Configuration</span>&nbsp;&nbsp;
 												</div>
                                                 <div style="margin-left: 10px" class="d-flex justify-content-left my-2">
                                                     <div>
@@ -228,7 +237,7 @@
 										<div class="col-md-12">
 											<div class="card">
 												<div class="card-header">
-													<span data-balloon="Calibration tab." data-balloon-pos="right">Calibration</span>&nbsp;&nbsp;
+													<span>Calibration</span>&nbsp;&nbsp;
 												</div>
                                                 <div style="margin-left: 10px" class="d-flex justify-content-left my-2">
                                                     <div>
@@ -256,7 +265,7 @@
 										<div class="col-md-12">
 											<div class="card">
 												<div class="card-header">
-													<span data-balloon="Diagnostics tab." data-balloon-pos="right">Diagnostics</span>&nbsp;&nbsp;
+													<span>Diagnostics</span>&nbsp;&nbsp;
 												</div>
                                                 <div style="margin-left: 5px; margin-top: 5px; margin-bottom: 5px">
                                                     <div style="text-align: left; margin-top: 5px">

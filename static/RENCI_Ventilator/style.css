@@ -180,12 +180,13 @@ svg {
 
 .dropdown-menu li
 {
-   font-size:12px
+   font-size:12px;
 }
 
 .btn
 {
-	font-size: 12px	
+	font-size: 11px;
+    padding: 2px;
 }
 
 #pagehdr {  
