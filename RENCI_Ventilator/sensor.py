@@ -179,23 +179,26 @@ if __name__ == '__main__':
     print(f'Current mode: {sh0.debug_mode}, Sensor: {sh0.sensor_type}')
     print(f'standard units: {sh0.standard_units}, Sea level pressure: {sh0.bmp.sea_level_pressure}')
 
-    print("\nSensor 1")
+    print("Sensor 1")
     print(f'Current mode: {sh1.debug_mode}, Sensor: {sh1.sensor_type}')
     print(f'standard units: {sh1.standard_units}, Sea level pressure: {sh1.bmp.sea_level_pressure}')
 
     # forever
     while True:
-        # get the temperature
-        temperature0 = sh0.get_temperature()
-        altitude0 = sh0.get_altitude()
-        psi0 = sh0.get_pressure()
+        try:
+            # get the temperature
+            temperature0 = sh0.get_temperature()
+            altitude0 = sh0.get_altitude()
+            psi0 = sh0.get_pressure()
 
-        temperature1 = sh1.get_temperature()
-        altitude1 = sh1.get_altitude()
-        psi1 = sh1.get_pressure()
+            temperature1 = sh1.get_temperature()
+            altitude1 = sh1.get_altitude()
+            psi1 = sh1.get_pressure()
 
-        print(f'Sensor 0 - Pressure: {psi0}  Temperature: {temperature0}  Altitude (M): {altitude0}')
-        print(f'Sensor 1 - Pressure: {psi1}  Temperature: {temperature1}  Altitude (M): {altitude1}')
+            print(f'\nSensor 0 - Pressure: {psi0}  Temperature: {temperature0}  Altitude (M): {altitude0}')
+            print(f'Sensor 1 - Pressure: {psi1}  Temperature: {temperature1}  Altitude (M): {altitude1}')
+        except Exception as e:
+            print(f'Exception: {e}')
 
         # do it again in a second
         time.sleep(2)
