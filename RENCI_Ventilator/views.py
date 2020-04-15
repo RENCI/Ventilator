@@ -7,20 +7,20 @@ from django.core import serializers
 from RENCI_Ventilator.models import Configuration, Calibration, Diagnostic  # , Pressure, Respiration
 from RENCI_Ventilator.utils import run_diagnostic, get_settings
 from RENCI_Ventilator.sensor import SensorHandler
+import pandas as pd
+import numpy as np
 
 # init a couple global params for the sensors
 sh_pressure = None
-sh_respiration = None
 
 
 # main entry point
 def index(request):
     # create global variables for the devices
-    global sh_pressure, sh_respiration
+    global sh_pressure
 
     # start up the sensor handlers
-    sh_pressure = SensorHandler(0)
-    sh_respiration = SensorHandler(1)
+    sh_pressure = SensorHandler(SensorHandler.SENSOR_0)
 
     # render the main page
     return render(request, 'RENCI_Ventilator/index.html', {})
@@ -114,21 +114,25 @@ def data_req(request):
             # we only expect either of the two types
             if param in legal_params:
                 try:
+                    global sh_pressure
+
                     # get the correct sensor
                     if param == 'Pressure':
-                        global sh_pressure
-                        # save the target DB table
-                        # tbl_obj = Pressure
-
-                        # get data from real sensor
+                        # get the pressure data
                         sensor_value = sh_pressure.get_pressure()
                     else:
-                        global sh_respiration
-                        # save the target DB table
-                        # tbl_obj = Respiration
+                        # get the respiration data
+                        resp_data = sh_pressure.get_pressure_history()
 
-                        # get data from real sensor
-                        sensor_value = sh_respiration.get_pressure()
+                        # find the peaks
+                        df = pd.DataFrame({'value': resp_data})
+
+                        df['loc_min'] = df.value[(df.value.shift(1) > df.value) & (df.value.shift(-1) > df.value)]
+
+                        df['if_A'] = np.where(df['loc_min'].isna(), False, True)
+
+                        # return the count of peaks
+                        sensor_value = ((len(resp_data)/240)*60)/len(df[df['if_A']==True])
 
                     # save the sensor data
                     ret_val = sensor_value
