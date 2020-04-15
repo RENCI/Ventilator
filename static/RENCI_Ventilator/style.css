@@ -52,10 +52,8 @@ svg {
   background: rgba(255,255,255, 0.2);
   //box-shadow: 0 0 1px 1px;
   border: 1px solid darkgrey;
-  margin-left: 3px;
-  margin-right: 3px;
+  margin-left: 1px;
   margin-bottom: 5px;
-
 }
 
 .header rect
