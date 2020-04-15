@@ -1,6 +1,7 @@
 import random
 from django.db.models import QuerySet
 
+
 # gets the list of settings for the type passed
 def get_settings(obj) -> dict:
     # get the data
@@ -23,9 +24,11 @@ def get_settings(obj) -> dict:
     # convert the data to json format
     return settings
 
+
 # TODO: actually create the diagnostics
 def run_diagnostic() -> int:
     return 1
+
 
 # TODO: get the data from the sensor
 def get_respiration_data() -> int:

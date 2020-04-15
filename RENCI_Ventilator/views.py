@@ -8,19 +8,29 @@ from RENCI_Ventilator.models import Configuration, Calibration, Diagnostic  # , 
 from RENCI_Ventilator.utils import run_diagnostic, get_settings
 from RENCI_Ventilator.sensor import SensorHandler
 
-# start up the sensor handlers
-sh_pressure = SensorHandler(0)
-sh_respiration = SensorHandler(1)
+# init a couple global params for the sensors
+sh_pressure = None
+sh_respiration = None
 
 
 # main entry point
 def index(request):
+    # create global variables for the devices
+    global sh_pressure, sh_respiration
+
+    # start up the sensor handlers
+    sh_pressure = SensorHandler(0)
+    sh_respiration = SensorHandler(1)
+
     # render the main page
     return render(request, 'RENCI_Ventilator/index.html', {})
 
 
 # gets the running instances
 def data_req(request):
+    # init the return status
+    op_status = 200
+
     # define legal request types
     legal_req_types: list = ['event', 'config', 'calib', 'diags', 'update']
 
@@ -70,6 +80,7 @@ def data_req(request):
                 # its a failure if there was no param passed for this type
                 if param is None:
                     ret_val = 'Invalid or missing parameter(s).'
+                    op_status = 400
                 else:
                     # check the table type
                     if table == 'config':
@@ -91,6 +102,7 @@ def data_req(request):
                     ret_val = 'Settings saved.'
             else:
                 ret_val = 'Invalid setting request.'
+                op_status = 400
 
         elif req_type == 'event':
             # only each type of graph
@@ -101,30 +113,37 @@ def data_req(request):
 
             # we only expect either of the two types
             if param in legal_params:
-                # get the correct sensor
-                if param == 'Pressure':
-                    # save the target DB table
-                    # tbl_obj = Pressure
+                try:
+                    # get the correct sensor
+                    if param == 'Pressure':
+                        global sh_pressure
+                        # save the target DB table
+                        # tbl_obj = Pressure
 
-                    # get data from real sensor
-                    sensor_value = sh_pressure.get_pressure()
-                else:
-                    # save the target DB table
-                    # tbl_obj = Respiration
+                        # get data from real sensor
+                        sensor_value = sh_pressure.get_pressure()
+                    else:
+                        global sh_respiration
+                        # save the target DB table
+                        # tbl_obj = Respiration
 
-                    # get data from real sensor
-                    sensor_value = sh_respiration.get_pressure()
+                        # get data from real sensor
+                        sensor_value = sh_respiration.get_pressure()
 
-                # save the sensor data
-                ret_val = sensor_value
+                    # save the sensor data
+                    ret_val = sensor_value
 
                 # TODO: persist this data to the database?
 
+                except Exception as e:
+                    ret_val = e
+                    op_status = 500
             else:
                 ret_val = 'Invalid or missing event param.'
+                op_status = 400
 
     # load the response and type, no caching here
-    response = HttpResponse(json.dumps(ret_val), content_type='application/json')
+    response = HttpResponse(json.dumps(ret_val), content_type='application/json', status=op_status)
     response['Cache-Control'] = 'no-cache'
 
     # return the resultant JSON to the caller

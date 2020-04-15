@@ -64,10 +64,9 @@ class SensorHandler:
         self.bmp.temperature_oversampling = 2
         self.bmp.sea_level_pressure = sea_level_pressure
 
-
-    # TODO: return the result of diagnostics
     @staticmethod
     def diagnostics():
+        # TODO: return the result of diagnostics
         return True
 
     #################

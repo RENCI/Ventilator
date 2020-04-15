@@ -103,8 +103,9 @@ function load_settings()
         r_value.val(configData.respiration.value);
         respirationValueSpan.html(r_value.val());
 
-        // set the demo mode flag
+        // set the demo mode flag and present the message
         $("#demomode").prop('checked', configData.demomode.value);
+        demoMessage();
     });
 
     // load up the various configuration items
@@ -138,15 +139,15 @@ function load_settings()
 }
 
 // global flag for pausing the wave monitor
-var monitorPause = 0;
+let monitorPause = 0;
 
 // toggles the monitor data retrieval
 function togglePause()
 {
-    theBtn = $('#pause');
+    let theBtn = $('#pause');
 
     // if we are running
-    if(monitorPause == 0)
+    if(monitorPause === 0)
     {
         // set flag to pause
         monitorPause = 1;
@@ -165,5 +166,20 @@ function togglePause()
         theBtn.removeClass("btn-danger");
         theBtn.addClass("btn-success");
         theBtn.html('Pause');
+    }
+}
+
+// displays if we are in demo mode
+function demoMessage()
+{
+    let chk_val = $('#demomode').is(":checked");
+
+    if(chk_val === true)
+    {
+        $('#demoModeMsg').html('DEMO MODE')
+    }
+    else
+    {
+        $('#demoModeMsg').html('')
     }
 }
