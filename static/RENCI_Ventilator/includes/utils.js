@@ -51,6 +51,9 @@ function saveSetting(table)
     {
         qs = qs + 'pressure=' + $('#pressureRange').val() + '~' + 'respiration=' + $('#respirationRange').val() + '~' + 'demomode=' + ($('#demomode').is(":checked") + 0);
         msgTarget = $('#saveConfigMsg');
+
+        // show/hide the demo message
+        demoMessage();
     }
     else
     {
