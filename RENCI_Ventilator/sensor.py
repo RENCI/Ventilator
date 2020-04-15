@@ -3,7 +3,8 @@ import random
 from RENCI_Ventilator.utils import get_settings
 from RENCI_Ventilator.models import Configuration
 
-# provides access to the sensor data
+
+# provides access to demo or real sensor data
 class SensorHandler:
     # define instance type constants
     SENSOR_PRESSURE = 0
@@ -16,6 +17,7 @@ class SensorHandler:
             self.pressure = 0
             self.temperature = 0
             self.altitude = 0
+            self.sea_level_pressure = 0
 
     # init the SensorHandler class
     def __init__(self, sensor_type: int = 0, sea_level_pressure: float = 1000.8, standard_units: bool = True):
@@ -23,13 +25,16 @@ class SensorHandler:
         settings = get_settings(Configuration)
 
         # save the debug mode
-        self.debug_mode = bool(settings['demo_mode']['value'])
+        self.debug_mode = bool(settings['demomode']['value'])
 
         # save the sensor type
         self.sensor_type = sensor_type
 
         # counter for fake breathing waveform data
         self.sample_counter = 0
+
+        # init the units type flag
+        self.standard_units = standard_units
 
         # if we are not in debug mode setup the raspberry pi
         if not self.debug_mode:
@@ -54,13 +59,11 @@ class SensorHandler:
             # load up the demo bmp emulator
             self.bmp = self.DebugBmp()
 
-        # set the sensor sampling rates
+        # set the sensor sampling rates and reference pressure
         self.bmp.pressure_oversampling = 8
         self.bmp.temperature_oversampling = 2
-
-        # init the other params
         self.bmp.sea_level_pressure = sea_level_pressure
-        self.standard_units = standard_units
+
 
     # TODO: return the result of diagnostics
     @staticmethod
@@ -79,7 +82,7 @@ class SensorHandler:
                              6, 5, 5, 5,
                              5, 5, 4, 5,
                              5, 4, 5, 5,
-                             4, 5, 0, -1]
+                             4, 5, 1, 0]
 
     # the UI is set to sample every 500ms. so divide by two to get the number of seconds
     # so the respiration/min cycle rate is (60 / (the number of samples / second))
@@ -176,8 +179,8 @@ class SensorHandler:
 # debug testing
 if __name__ == '__main__':
     # fire up the class to read the sensor
-    sh0 = SensorHandler(debug_mode=False, sensor_type=0)
-    sh1 = SensorHandler(debug_mode=False, sensor_type=1)
+    sh0 = SensorHandler(sensor_type=0)
+    sh1 = SensorHandler(sensor_type=1)
 
     print("Sensor 0")
     print(f'Current mode: {sh0.debug_mode}, Sensor: {sh0.sensor_type}')

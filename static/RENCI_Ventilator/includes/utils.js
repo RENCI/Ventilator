@@ -49,7 +49,7 @@ function saveSetting(table)
     // put in the specific params for this area
     if (table === 'config')
     {
-        qs = qs + 'pressure=' + $('#pressureRange').val() + '~' + 'respiration=' + $('#respirationRange').val() + '~' + 'demo_mode=' + $('#demo_mode').val();
+        qs = qs + 'pressure=' + $('#pressureRange').val() + '~' + 'respiration=' + $('#respirationRange').val() + '~' + 'demomode=' + ($('#demomode').is(":checked") + 0);
         msgTarget = $('#saveConfigMsg');
     }
     else
@@ -102,6 +102,9 @@ function load_settings()
         // set the initial respiration value
         r_value.val(configData.respiration.value);
         respirationValueSpan.html(r_value.val());
+
+        // set the demo mode flag
+        $("#demomode").prop('checked', configData.demomode.value);
     });
 
     // load up the various configuration items
