@@ -6,7 +6,6 @@ try:
     from RENCI_Ventilator.models import Configuration
 except Exception as e:
     from .utils import get_settings
-    from .models import Configuration
 
 
 # provides access to demo or real sensor data

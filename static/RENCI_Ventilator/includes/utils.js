@@ -57,24 +57,27 @@ function saveSetting(table)
     }
     else
     {
-        qs = qs + 'sensor1=' + $('#sensor1Range').val() + '~' + 'sensor2=' + $('#sensor2Range').val();
+        qs = qs + 'sensor0=' + $('#sensor0Range').val() + '~' + 'sensor1=' + $('#sensor1Range').val();
         msgTarget = $('#saveCalibMsg');
     }
 
     d3.json('http://localhost:8000/dataReq?type=update' + qs, function(error, result)
     {
-        if(error != null) {
+        // show an error is we got one
+        if(error != null)
+        {
             msgTarget.text('Error saving.');
             msgTarget.addClass("error");
         }
-        else {
+        else
+        {
             msgTarget.text(result);
             msgTarget.addClass("pass");
         }
 
         // show/hide the message
         msgTarget.show(500);
-        msgTarget.hide(3000);
+        msgTarget.hide(2000);
    });
 }
 
@@ -114,30 +117,30 @@ function load_settings()
     // load up the various configuration items
     d3.json('http://localhost:8000/dataReq?type=calib', function(error, calibData)
     {
+        // the sensor 0 slider handler
+        const sensor0ValueSpan = $('.sensor0ValueSpan');
+        const s0_value = $('#sensor0Range');
+        sensor0ValueSpan.html(s0_value.val());
+        s0_value.on('input change', () => {
+            sensor0ValueSpan.html(s0_value.val());
+        });
+
+        // set the initial sensor 1 value
+        s0_value.val(calibData.sensor0.value);
+        sensor0ValueSpan.html(s0_value.val());
+
         // the sensor 1 slider handler
         const sensor1ValueSpan = $('.sensor1ValueSpan');
         const s1_value = $('#sensor1Range');
         sensor1ValueSpan.html(s1_value.val());
         s1_value.on('input change', () => {
             sensor1ValueSpan.html(s1_value.val());
+
         });
 
         // set the initial sensor 1 value
         s1_value.val(calibData.sensor1.value);
-        sensor1ValueSpan.html(s1_value.val());
-
-        // the sensor 2 slider handler
-        const sensor2ValueSpan = $('.sensor2ValueSpan');
-        const s2_value = $('#sensor2Range');
-        sensor2ValueSpan.html(s2_value.val());
-        s2_value.on('input change', () => {
-            sensor2ValueSpan.html(s2_value.val());
-
-        });
-
-        // set the initial sensor 1 value
-        s2_value.val(calibData.sensor2.value);
-        sensor2ValueSpan.html(s2_value.val());
+        sensor2ValueSpan.html(s1_value.val());
     });
 }
 
