@@ -1,7 +1,12 @@
 import time
 import random
-from RENCI_Ventilator.utils import get_settings
-from RENCI_Ventilator.models import Configuration
+
+try:
+    from RENCI_Ventilator.utils import get_settings
+    from RENCI_Ventilator.models import Configuration
+except Exception as e:
+    from .utils import get_settings
+    from .models import Configuration
 
 
 # provides access to demo or real sensor data
@@ -98,7 +103,7 @@ class SensorHandler:
                     self.sample_counter = 0
 
                 # get the next pressure data point with a little variation
-                ret_val = self.demo_pressure_samples[self.sample_counter] + random.randrange(1, 2, 1)
+                ret_val = self.demo_pressure_samples[self.sample_counter] + 14.1 + random.randrange(1, 2, 1)
 
                 # go to the next data point
                 self.sample_counter = self.sample_counter + 1

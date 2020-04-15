@@ -147,6 +147,7 @@ let monitorPause = 0;
 // toggles the monitor data retrieval
 function togglePause()
 {
+    // get a handle to the pause button
     let theBtn = $('#pause');
 
     // if we are running
@@ -155,7 +156,7 @@ function togglePause()
         // set flag to pause
         monitorPause = 1;
 
-        // update the view
+        // update the view of the button
         theBtn.removeClass("btn-success");
         theBtn.addClass("btn-danger");
         theBtn.html('Paused');

@@ -111,17 +111,26 @@
                                     // did we get an error
                                     if (error == null)
                                     {
-                                        // get the data value
-                                        let data_val = eventData;
-
-                                        // declare the threshold
-                                        let threshold;
+                                        // declare the threshold and data value
+                                        let threshold, data_val;
 
                                         // get the threshold for the target view
                                         if (title === 'Pressure')
+                                        {
+                                            // get the threshold value
                                             threshold = Number($('#pressureRange').val());
+
+                                            // correct the data value for the calibrations
+                                            data_val = eventData - Number($('#sensor1Range').val());
+                                        }
                                         else
+                                        {
+                                            // get the threshold value
                                             threshold = Number($('#respirationRange').val());
+
+                                            // get the data passed
+                                            data_val = eventData;
+                                        }
 
                                         // init the default line color
                                         let line_color = "darkgreen";
@@ -154,7 +163,7 @@
                 // load up the config and calibration settings
                 load_settings();
 
-                // create the monitor instances for each type
+                 // create the monitor instances for each type
                 instance("#pressureInstance", "Pressure", -5, 50, 250);
                 instance("#respirationInstance", "Respiration", 0, 20, 1000);
 			});
