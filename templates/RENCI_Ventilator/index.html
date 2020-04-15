@@ -22,10 +22,14 @@
                             return 0;
                         });
 
-                    // get the svg rendering area
+                    // init the graph rendering area.
+                    // height/width specify graph size limits in the box
+                    // left margin controls the left/right placement
+                    // overall size of the view box is in html
+                    // note: the raspberry pi 7" screen is 785 x 549 in the browser
                     let svg = d3.select(id),
-                        margin = {top: 0, right: 0, bottom: 0, left: 29},
-                        width = 360,
+                        margin = {top: 0, right: 0, bottom: 0, left: 25},
+                        width = 335,
                         height = 160,
                         g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
@@ -170,7 +174,7 @@
 		</script>
 
 		<div id="cardBody" class="card-body">
-			<ul class="nav nav-tabs" id="navTabs" role="tablist" style="margin-left:10px; margin-bottom: 7px">
+			<ul class="nav nav-tabs" id="navTabs" role="tablist" style="margin-left:2px; margin-bottom: 2px">
 				<li class="nav-item">
 					<a class="nav-link active" id="monitor-Tab" data-toggle="tab" href="#monitorTab" role="tab">Monitor</a>
 				</li>
@@ -196,14 +200,14 @@
                                 <div id="monitorTab" class="tab-pane fade show active" role="tabpanel">
                                     <div class="row">
                                         <div class="col-md-12">
-                                            <div class="card">
+                                            <div class="card" style="margin-left: -8px; margin-top: 2px">
                                                 <div class="card-header">
                                                     <span>Monitor</span>
                                                     <button id="pause" type="button" style="margin-left: 10px" value="pause" class="btn btn-success btn-xs" onclick="togglePause();">Pause</button>
                                                 </div>
-                                                <div id="monitorTarget" style="margin-left: 1px; margin-top: 5px; margin-right: 1px">
-                                                    <svg style="margin-left: 3px" id="pressureInstance" width="395" height="185"></svg>
-                                                    <svg style="margin-left: -3px" id="respirationInstance" width="395" height="185"></svg>
+                                                <div id="monitorTarget" style="margin-left: 1px; margin-top: 2px; margin-right: 1px">
+                                                    <svg style="margin-left: 1px" id="pressureInstance" width="365" height="185"></svg>
+                                                    <svg style="margin-left: -5px" id="respirationInstance" width="365" height="185"></svg>
                                                 </div>
 											</div>
 										</div>
@@ -281,7 +285,7 @@
                                                         <label for="diagnosticResults">Diagnostic results</label>
                                                     </div>
                                                     <div>
-                                                        <textarea style="margin-top: 5px; margin-bottom: 5px" id="diagnosticResults" cols="100" rows="5" disabled>Press Launch to start...</textarea>
+                                                        <textarea style="margin-top: 5px; margin-bottom: 5px" id="diagnosticResults" cols="95%" rows="5" disabled>Press Launch to start...</textarea>
                                                     </div>
                                                     <div>
                                                         <input id="sendDiagRequest" class="btn btn-info" type="button" value="Launch" onclick="sendDiagRequest();"/>

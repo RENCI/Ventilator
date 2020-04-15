@@ -140,7 +140,7 @@ function load_settings()
 
         // set the initial sensor 1 value
         s1_value.val(calibData.sensor1.value);
-        sensor2ValueSpan.html(s1_value.val());
+        sensor1ValueSpan.html(s1_value.val());
     });
 }
 
