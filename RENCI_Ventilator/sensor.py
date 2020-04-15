@@ -1,9 +1,7 @@
 import random
-import datetime
-from collections import OrderedDict
-
 from RENCI_Ventilator.utils import get_settings
 from RENCI_Ventilator.models import Configuration
+from RENCI_Ventilator.models import Calibration
 
 
 # provides access to demo or real sensor data
@@ -28,10 +26,11 @@ class SensorHandler:
     # init the SensorHandler class
     def __init__(self, sensor_number: int = 0, sea_level_pressure: float = 1000.8, standard_units: bool = True):
         # get the configuration settings
-        settings = get_settings(Configuration)
+        config_settings = get_settings(Configuration)
+        calib_settings = get_settings(Calibration)
 
         # save the debug mode
-        self.debug_mode: int = bool(settings['demomode']['value'])
+        self.debug_mode: int = bool(config_settings['demomode']['value'])
 
         # save the sensor type
         self.sensor_type: int = sensor_number
@@ -41,6 +40,9 @@ class SensorHandler:
 
         # init the units type flag
         self.standard_units: bool = standard_units
+
+        # get the calibration reading
+        self.pressure_correction = calib_settings[f'sensor{sensor_number}']['value']
 
         # if we are not in debug mode setup the raspberry pi
         if not self.debug_mode:
@@ -94,7 +96,7 @@ class SensorHandler:
     demo_cycle_duration: int = int(60 / (len(demo_pressure_samples) / 4))
 
     # get pressure
-    def get_pressure(self) -> int:
+    def get_pressure(self) -> float:
         # if in debug mode return a random number in a reasonable range
         if self.debug_mode:
             # reset to the beginning if needed
@@ -102,14 +104,14 @@ class SensorHandler:
                 self.sample_counter = 0
 
             # get the next pressure data point with a little variation
-            ret_val: int = self.demo_pressure_samples[self.sample_counter] + 14.1 + random.randrange(1, 2, 1)
+            ret_val: float = self.demo_pressure_samples[self.sample_counter] + random.randrange(1, 2, 1)
 
             # go to the next data point
             self.sample_counter = self.sample_counter + 1
         else:
             # in standard mode return psi
             if self.standard_units:
-                ret_val: float = self.get_psi_pressure()
+                ret_val: float = self.get_psi_pressure() - self.pressure_correction
             # else return hpa
             else:
                 ret_val: float = self.get_hpa_pressure()

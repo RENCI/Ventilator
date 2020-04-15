@@ -118,23 +118,16 @@
                                         // declare the threshold and data value
                                         let threshold, data_val;
 
+                                        // get the data value
+                                        data_val = eventData;
+
                                         // get the threshold for the target view
                                         if (title === 'Pressure')
-                                        {
                                             // get the threshold value
                                             threshold = Number($('#pressureRange').val());
-
-                                            // correct the data value for the calibrations
-                                            data_val = eventData - Number($('#sensor1Range').val());
-                                        }
                                         else
-                                        {
                                             // get the threshold value
                                             threshold = Number($('#respirationRange').val());
-
-                                            // get the data passed
-                                            data_val = eventData;
-                                        }
 
                                         // init the default line color
                                         let line_color = "darkgreen";
