@@ -121,26 +121,33 @@ def data_req(request):
                         # get the pressure data
                         sensor_value = sh_pressure.get_pressure()
                     else:
-                        # get the respiration data
+                        # get the sensor pressure history data
                         resp_data = sh_pressure.get_pressure_history()
 
-                        # find the peaks
+                        # get the last set of pressure data points (up to a minute)
                         df = pd.DataFrame({'value': resp_data})
 
+                        # find all the local minima over the range of pressure data points
                         df['loc_min'] = df.value[(df.value.shift(1) > df.value) & (df.value.shift(-1) > df.value)]
 
+                        # get all points that indicate a minima was found
                         df['if_A'] = np.where(df['loc_min'].isna(), False, True)
 
-                        # return the count of peaks
-                        sensor_value = ((len(resp_data)/240)*60)/len(df[df['if_A']==True])
+                        # get the count of mimimums
+                        minima = len(df[df['if_A'] == True])
+
+                        # if there were minima found
+                        if minima > 0:
+                            # return the count of peaks
+                            sensor_value = ((len(resp_data)/240)*60)/minima
+                        else:
+                            sensor_value = 0
 
                     # save the sensor data
                     ret_val = sensor_value
 
-                # TODO: persist this data to the database?
-
                 except Exception as e:
-                    ret_val = e
+                    ret_val = 'Exception'
                     op_status = 500
             else:
                 ret_val = 'Invalid or missing event param.'
