@@ -25,7 +25,7 @@
                     // get the svg rendering area
                     let svg = d3.select(id),
                         margin = {top: 0, right: 0, bottom: 0, left: 29},
-                        width = 365,
+                        width = 360,
                         height = 160,
                         g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
@@ -202,8 +202,8 @@
                                                     <button id="pause" type="button" style="margin-left: 10px" value="pause" class="btn btn-success btn-xs" onclick="togglePause();">Pause</button>
                                                 </div>
                                                 <div id="monitorTarget" style="margin-left: 1px; margin-top: 5px; margin-right: 1px">
-                                                    <svg style="margin-left: 3px" id="pressureInstance" width="400" height="185"></svg>
-                                                    <svg style="margin-left: -3px" id="respirationInstance" width="400" height="185"></svg>
+                                                    <svg style="margin-left: 3px" id="pressureInstance" width="395" height="185"></svg>
+                                                    <svg style="margin-left: -3px" id="respirationInstance" width="395" height="185"></svg>
                                                 </div>
 											</div>
 										</div>
@@ -281,7 +281,7 @@
                                                         <label for="diagnosticResults">Diagnostic results</label>
                                                     </div>
                                                     <div>
-                                                        <textarea style="margin-top: 5px; margin-bottom: 5px" id="diagnosticResults" cols="100" rows="5" disabled>Diagnostic results...</textarea>
+                                                        <textarea style="margin-top: 5px; margin-bottom: 5px" id="diagnosticResults" cols="100" rows="5" disabled>Press Launch to start...</textarea>
                                                     </div>
                                                     <div>
                                                         <input id="sendDiagRequest" class="btn btn-info" type="button" value="Launch" onclick="sendDiagRequest();"/>
