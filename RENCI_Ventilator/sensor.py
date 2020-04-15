@@ -10,9 +10,9 @@ except Exception as e:
 
 # provides access to demo or real sensor data
 class SensorHandler:
-    # define instance type constants
-    SENSOR_PRESSURE = 0
-    SENSOR_RESPIRATION = 1
+    # define sensor number constants
+    SENSOR_0 = 0
+    SENSOR_1 = 1
 
     # debug class that simulates the real sensor
     class DebugBmp:
@@ -24,7 +24,7 @@ class SensorHandler:
             self.sea_level_pressure = 0
 
     # init the SensorHandler class
-    def __init__(self, sensor_type: int = 0, sea_level_pressure: float = 1000.8, standard_units: bool = True):
+    def __init__(self, sensor_number: int = 0, sea_level_pressure: float = 1000.8, standard_units: bool = True):
         # get the configuration settings
         settings = get_settings(Configuration)
 
@@ -32,7 +32,7 @@ class SensorHandler:
         self.debug_mode = bool(settings['demomode']['value'])
 
         # save the sensor type
-        self.sensor_type = sensor_type
+        self.sensor_type = sensor_number
 
         # counter for fake breathing waveform data
         self.sample_counter = 0
@@ -47,7 +47,7 @@ class SensorHandler:
             import adafruit_bmp3xx
 
             # type 0 is the i2c bus for sensor 0
-            if sensor_type == SensorHandler.SENSOR_PRESSURE:
+            if sensor_number == SensorHandler.SENSOR_0:
                 # i2c bus config
                 i2c = busio.I2C(board.SCL, board.SDA)
                 self.bmp = adafruit_bmp3xx.BMP3XX_I2C(i2c)
@@ -93,10 +93,14 @@ class SensorHandler:
 
     # get pressure
     def get_pressure(self):
+
         # if in debug mode return a random number in a reasonable range
         if self.debug_mode:
+            # init the return
+            ret_val = 0
+
             # do the x-axis points
-            if self.sensor_type == SensorHandler.SENSOR_PRESSURE:
+            if self.sensor_type == SensorHandler.SENSOR_0:
                 # reset to the beginning if needed
                 if self.sample_counter >= len(self.demo_pressure_samples):
                     self.sample_counter = 0
@@ -106,11 +110,8 @@ class SensorHandler:
 
                 # go to the next data point
                 self.sample_counter = self.sample_counter + 1
-            # else return the respiration rate
-            else:
-                # make the respiration rate a little variable for effect
-                ret_val = random.randrange(self.demo_cycle_duration-1, self.demo_cycle_duration+1, 1)
 
+            # return to the caller
             return ret_val
         else:
             # in standard mode return psi
@@ -182,8 +183,8 @@ class SensorHandler:
 # debug testing
 if __name__ == '__main__':
     # fire up the class to read the sensor
-    sh0 = SensorHandler(sensor_type=0)
-    sh1 = SensorHandler(sensor_type=1)
+    sh0 = SensorHandler(sensor_number=0)
+    sh1 = SensorHandler(sensor_number=1)
 
     print("Sensor 0")
     print(f'Current mode: {sh0.debug_mode}, Sensor: {sh0.sensor_type}')
