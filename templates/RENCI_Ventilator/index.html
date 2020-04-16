@@ -185,6 +185,9 @@
                                         // are we drawing the second line
                                         if(lines === 2)
                                         {
+                                            // init the default line color
+                                            let line_color = "#0000ff";
+
                                             // split the threshold range string
                                             let thresholds = threshold_range2.split(',');
 
@@ -222,7 +225,7 @@
 
                  // create the monitor instances for each type
                 instance("#pressureInstance", "Pressures (P-circ, p?)", -5, 50, 250, 2);
-                instance("#respirationInstance", "Respiration2", 0, 20, 1000, 1);
+                instance("#respirationInstance", "Respirations (per min)", 0, 20, 1000, 1);
 			});
 		</script>
 

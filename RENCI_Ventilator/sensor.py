@@ -10,10 +10,6 @@ class SensorHandler:
     SENSOR_0: int = 0
     SENSOR_1: int = 1
 
-    # list of previous pressure values
-    # we fill the array with 0 for the number of samples per second up for a minute
-    pressure_history: list = [0] * 4 * 60
-
     # debug class that simulates the real sensor
     class DebugBmp:
         # init the debug simulator class
@@ -43,6 +39,10 @@ class SensorHandler:
 
         # get the calibration reading
         self.pressure_correction = calib_settings[f'sensor{sensor_number}']['value']
+
+        # list of previous pressure values
+        # we fill the array with 0 for the number of samples per second up for a minute
+        self.pressure_history: list = [0] * 4 * 60
 
         # if we are not in debug mode setup the raspberry pi
         if not self.debug_mode:
@@ -81,12 +81,12 @@ class SensorHandler:
     # declare methods that will get sensor data in selected units
     #################
 
-    # demo pressure waveform data, 1 second per line
+    # demo pressure waveform data, each line is 1 second at a 25% UI duty cycle
     demo_pressure_samples: list = [10, 20, 22, 27,
                                    26, 26, 25, 24,
                                    19, 12, 9, 8,
                                    8, 7, 6, 6,
-                                   6, 6, 6, 5,
+                                   # 6, 6, 6, 5,
                                    # 5, 5, 5, 5,
                                    # 5, 5, 5, 5,
                                    5, 5, 1, 0]
@@ -99,8 +99,12 @@ class SensorHandler:
             if self.sample_counter >= len(self.demo_pressure_samples):
                 self.sample_counter = 0
 
-            # get the next pressure data point with a little variation
-            ret_val: float = self.demo_pressure_samples[self.sample_counter] + random.randrange(1, 2, 1)
+            if self.sensor_type == 0:
+                # get the next pressure data point with a little variation
+                ret_val: float = self.demo_pressure_samples[self.sample_counter] + random.randrange(1, 2, 1)
+            else:
+                # get the next pressure data point with a little variation
+                ret_val: float = random.randrange(31, 49, 1)
 
             # go to the next data point
             self.sample_counter += 1

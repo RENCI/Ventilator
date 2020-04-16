@@ -22,10 +22,6 @@ def index(request):
     global sh_pressure_0
     global sh_pressure_1
 
-    # clear them out if this is a refresh
-    sh_pressure_0 = None
-    sh_pressure_1 = None
-
     # start up the sensor handlers
     sh_pressure_0 = SensorHandler(SensorHandler.SENSOR_0)
     sh_pressure_1 = SensorHandler(SensorHandler.SENSOR_1)
@@ -128,7 +124,7 @@ def data_req(request):
                     # get the correct sensor
                     if param == '2':
                         # get the pressure data
-                        sensor_value = [sh_pressure_0.get_pressure(), random.randrange(30, 50, 1)]
+                        sensor_value = [sh_pressure_0.get_pressure(), sh_pressure_1.get_pressure()]
                     else:
                         # get the sensor pressure history data
                         resp_data = sh_pressure_0.get_pressure_history()
