@@ -12,7 +12,7 @@ class SensorHandler:
 
     # list of previous pressure values
     # we fill the array with 0 for the number of samples per second up for a minute
-    pressure_history: list = []
+    pressure_history: list = [0] * 4 * 60
 
     # debug class that simulates the real sensor
     class DebugBmp:
@@ -87,7 +87,7 @@ class SensorHandler:
                                    19, 12, 9, 8,
                                    8, 7, 6, 6,
                                    6, 6, 6, 5,
-                                   5, 5, 5, 5,
+#                                   5, 5, 5, 5,
                                    5, 5, 5, 5,
                                    5, 5, 1, 0]
 
@@ -107,7 +107,7 @@ class SensorHandler:
             ret_val: float = self.demo_pressure_samples[self.sample_counter] + random.randrange(1, 2, 1)
 
             # go to the next data point
-            self.sample_counter = self.sample_counter + 1
+            self.sample_counter += 1
         else:
             # in standard mode return psi
             if self.standard_units:
