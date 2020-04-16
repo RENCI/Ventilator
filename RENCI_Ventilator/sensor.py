@@ -26,7 +26,7 @@ class SensorHandler:
         calib_settings = get_settings(Calibration)
 
         # save the debug mode
-        self.debug_mode: int = bool(config_settings['demomode']['value'])
+        self.debug_mode: int = bool(int(config_settings['demomode']['value']))
 
         # save the sensor type
         self.sensor_type: int = sensor_number
