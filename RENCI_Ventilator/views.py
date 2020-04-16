@@ -1,4 +1,7 @@
 import json
+import random
+import pandas as pd
+import numpy as np
 
 from django.shortcuts import render
 from django.http import HttpResponse
@@ -7,20 +10,25 @@ from django.core import serializers
 from RENCI_Ventilator.models import Configuration, Calibration, Diagnostic  # , Pressure, Respiration
 from RENCI_Ventilator.utils import run_diagnostic, get_settings
 from RENCI_Ventilator.sensor import SensorHandler
-import pandas as pd
-import numpy as np
 
 # init a couple global params for the sensors
-sh_pressure = None
+sh_pressure_0 = None
+sh_pressure_1 = None
 
 
 # main entry point
 def index(request):
     # create global variables for the devices
-    global sh_pressure
+    global sh_pressure_0
+    global sh_pressure_1
+
+    # clear them out if this is a refresh
+    sh_pressure_0 = None
+    sh_pressure_1 = None
 
     # start up the sensor handlers
-    sh_pressure = SensorHandler(SensorHandler.SENSOR_0)
+    sh_pressure_0 = SensorHandler(SensorHandler.SENSOR_0)
+    sh_pressure_1 = SensorHandler(SensorHandler.SENSOR_1)
 
     # render the main page
     return render(request, 'RENCI_Ventilator/index.html', {})
@@ -106,7 +114,7 @@ def data_req(request):
 
         elif req_type == 'event':
             # only each type of graph
-            legal_params: list = ['Pressure', 'Respiration']
+            legal_params: list = ['1', '2']
 
             # get any params if there are any
             param = request.GET.get('param')
@@ -114,15 +122,16 @@ def data_req(request):
             # we only expect either of the two types
             if param in legal_params:
                 try:
-                    global sh_pressure
+                    global sh_pressure_0
+                    global sh_pressure_1
 
                     # get the correct sensor
-                    if param == 'Pressure':
+                    if param == '2':
                         # get the pressure data
-                        sensor_value = sh_pressure.get_pressure()
+                        sensor_value = [sh_pressure_0.get_pressure(), random.randrange(30, 50, 1)]
                     else:
                         # get the sensor pressure history data
-                        resp_data = sh_pressure.get_pressure_history()
+                        resp_data = sh_pressure_0.get_pressure_history()
 
                         # if there no variance in the data it must be a flat line
                         if np.var(resp_data) > 2.0:
@@ -130,7 +139,7 @@ def data_req(request):
                             df = pd.DataFrame({'value': resp_data})
 
                             # find all the local minimums over the range of pressure data points
-                            df['loc_min'] = df.value[(df.value.shift(1) > df.value) & (df.value.shift(-1) > df.value)]
+                            df['loc_min'] = df.value[(df.value.shift(1) < df.value) & (df.value.shift(-1) < df.value)]
 
                             # get all points that indicate a minimum was found
                             df['if_min'] = np.where(df['loc_min'].isna(), False, True)
@@ -141,6 +150,8 @@ def data_req(request):
                             # if there were minima found
                             if sensor_value <= 0:
                                 sensor_value = 0
+                            elif sensor_value > 20:
+                                sensor_value = 20
                         else:
                             sensor_value = 0
 

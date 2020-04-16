@@ -14,11 +14,13 @@
                  *  y_max - the upper bound of the y axis
                  *  duration - the data gathering rate in milliseconds
                  */
-                const instance = (id, title, y_min, y_max, duration) => {
-                    // define some constants
+                const instance = (id, title, y_min, y_max, duration, lines) => {
+                    // init local variables
                     let n = 120,
                         now = new Date(Date.now() - duration),
-                        data = d3.range(n).map(function () { return 0; });
+                        data = d3.range(n).map(function () { return 0; }),
+                        data2 = d3.range(n).map(function () { return 0; }),
+                        line2 = null;
 
                     // init the graph rendering area.
                     // height/width specify graph size limits in the box
@@ -33,7 +35,7 @@
 
                     // define the x axis
                     let x = d3.scaleTime()
-                        .domain([now - (n - 2) * duration, now - duration]) // duration
+                        .domain([now - (n - 2) * duration, now - duration])
                         .range([0, width]);
 
                     // define the y axis
@@ -44,7 +46,7 @@
                     // define the line properties, the curve basis smooths out the line
                     let line = d3.line()
                         .x(function (d, i) {
-                            return x(now - (n - 1 - i) * duration); // duration
+                            return x(now - (n - 1 - i) * duration);
                         })
                         .y(function (d) {
                             return y(d);
@@ -57,19 +59,33 @@
                         .attr("width", width)
                         .attr("height", height+100);
 
+                    // create areas for the second data line
+                    if(lines === 2)
+                    {
+                        // define the line properties, the curve basis smooths out the line
+                        line2 = d3.line()
+                            .x(function (d, i) {
+                                return x(now - (n - 1 - i) * duration);
+                            })
+                            .y(function (d) {
+                                return y(d);
+                            }).curve(d3.curveBasis);
+
+                        // assign a clip path for the left scrolling time animation area
+                        g.append("defs").append("clipPath")
+                            .attr("id", "clip2")
+                            .append("rect")
+                            .attr("width", width)
+                            .attr("height", height + 100);
+                    }
+
                     // display the graph title
                     g.append("text")
-                        .attr("transform", "translate(" + (width/2.5) + ", 17)")
+                        .attr("transform", "translate(" + (width/3) + ", 17)")
                         .attr("fill", "darkblue")
-                        .text(function()
-                                {
-                                    if(title === 'Pressure')
-                                        return (title + ' (P-circ)');
-                                    else
-                                        return (title + ' (per min)');
-                                });
+                        .text(title);
 
-                    // define the x axis animation
+                    // define the x axis
                     let axis = g.append("g")
                         .attr("class", "axis axis--x")
                         .attr("transform", "translate(0," + height + ")")
@@ -91,7 +107,18 @@
                             .ease(d3.easeLinear)
                             .on("start", tick);
 
-                    // define the temporal transiton of the x axis and data
+                    // render the animation area
+                    g.append("g")
+                            .attr("clip-path", "url(#clip2)")
+                        .append("path")
+                            .datum(data2)
+                            .attr("class", "line2")
+                        .transition()
+                            .duration(500) // duration
+                            .ease(d3.easeLinear)
+                            .on("start", tick);
+
+                    // define the temporal transition of the x axis and data
                     let transition = d3.select({}).transition()
                         .duration(duration)
                         .ease(d3.easeLinear);
@@ -103,45 +130,80 @@
                             // check to see if we are paused
                             if(monitorPause === 0)
                             {
-                                // update the domains
+                                // update the -axis time domain
                                 now = new Date();
                                 x.domain([now - (n) * duration, now - duration]);
 
                                 // get the data for this instance type
-                                d3.json('http://localhost:8000/dataReq?type=event&param=' + title, function (error, eventData)
+                                d3.json('http://localhost:8000/dataReq?type=event&param=' + lines, function (error, eventData)
                                 {
                                     // did we get an error
                                     if (error == null)
                                     {
                                         // declare the threshold and data value
-                                        let threshold, data_val;
+                                        let threshold_range, threshold_range2, data_val, data_val2;
 
                                         // get the data value
                                         data_val = eventData;
 
                                         // get the threshold for the target view
-                                        if (title === 'Pressure')
+                                        if (lines === 2)
+                                        {
                                             // get the threshold value
-                                            threshold = Number($('#pressureRange').val());
+                                            threshold_range = $('#pCircRange').val();
+
+                                            // get the threshold value
+                                            threshold_range2 = $('#pxRange').val();
+
+                                            // data for more than one line comes in as an array
+                                            data_val2 = data_val[1];
+                                            data_val = data_val[0];
+                                        }
                                         else
                                             // get the threshold value
-                                            threshold = Number($('#respirationRange').val());
+                                            threshold_range = $('#respirationRange').val();
 
                                         // init the default line color
-                                        let line_color = "darkgreen";
+                                        let line_color = "#009933";
+
+                                        // split the threshold range string
+                                        let thresholds = threshold_range.split(',');
 
                                         // data line color change based on a threshold
-                                        if (data_val > threshold)
+                                        if (data_val < Number(thresholds[0]) || data_val > Number(thresholds[1]))
                                             line_color = "darkred";
 
                                         // push the value onto the data stack
                                         data.push(data_val);
 
-                                        // redraw the line
+                                        // redraw the default line
                                         svg.select(".line")
                                             .attr("d", line)
                                             .attr("stroke", line_color)
                                             .attr("transform", null);
+
+                                        // are we drawing the second line
+                                        if(lines === 2)
+                                        {
+                                            // split the threshold range string
+                                            let thresholds = threshold_range2.split(',');
+
+                                            // data line color change based on a threshold
+                                            if (data_val2 < Number(thresholds[0]) || data_val2 > Number(thresholds[1]))
+                                                line_color = "darkred";
+
+                                            // save the data value
+                                            data2.push(data_val2);
+
+                                            // redraw the 2nd line
+                                            svg.select(".line2")
+                                                .attr("d", line2)
+                                                .attr("stroke", line_color)
+                                                .attr("transform", null);
+
+                                            // make room for the next value
+                                            data2.shift();
+                                        }
 
                                         // slide the x-axis to the left
                                         axis.call(x.axis);
@@ -159,8 +221,8 @@
                 load_settings();
 
                  // create the monitor instances for each type
-                instance("#pressureInstance", "Pressure", -5, 50, 250);
-                instance("#respirationInstance", "Respiration", 0, 20, 1000);
+                instance("#pressureInstance", "Pressures (P-circ, p?)", -5, 50, 250, 2);
+                instance("#respirationInstance", "Respiration2", 0, 20, 1000, 1);
 			});
 		</script>
 
@@ -186,7 +248,7 @@
             <div class="row">
                 <div class="col-md-12">
                     <div class="card" style="border: 1px">
-                        <div class="card-body"style="border: 1px; border-color: black">
+                        <div class="card-body" style="border: 1px black;">
                             <div id="tabContent" class="tab-content">
                                 <div id="monitorTab" class="tab-pane fade show active" role="tabpanel">
                                     <div class="row">
@@ -207,24 +269,31 @@
 
 								<div id="configurationTab" class="tab-pane fade show" role="tabpanel">
 									<div class="row">
-										<div class="col-md-8">
+										<div class="col-md-10">
 											<div class="card">
 												<div class="card-header">
 													<span>Configuration</span>&nbsp;&nbsp;
 												</div>
                                                 <div style="margin-left: 10px; margin-right: 10px" class="d-flex justify-content-left my-2">
                                                     <div>
-                                                        <label for="pressureRange">Pressure warning:</label>
-                                                        <span class="font-weight-bold text-primary ml-2 pressureValueSpan"></span>
-                                                        <input type="range" class="custom-range" id="pressureRange" min="0" max="100" />
+                                                        <label for="pCircRange" style="margin-right: 10px">P-circ range</label>
+                                                        <input id="pCircRange" type="text"/>
+                                                        <span id="pCircRangeVals"></span>
                                                     </div>
-                                                    <div style="margin-left: 30px">
-                                                        <label for="respirationRange">Respiration warning:</label>
-                                                        <span class="font-weight-bold text-primary ml-2 respirationValueSpan"></span>
-                                                        <input type="range" class="custom-range" id="respirationRange" min="5" max="20" />
+                                                    <div>
+                                                        <label for="respirationRange" style="margin-left: 20px; margin-right: 10px">Respiration range</label>
+                                                        <input id="respirationRange" type="text"/>
+                                                        <span id="respirationRangeVals"></span>
                                                     </div>
                                                 </div>
-                                                <div style="margin-left:5px">
+                                                <div style="margin-left:10px">
+                                                    <div>
+                                                        <label for="pxRange" style="margin-right: 10px">Px range</label>
+                                                        <input id="pxRange" type="text"/>
+                                                        <span id="pxRangeVals"></span>
+                                                    </div>
+                                                </div>
+                                                <div style="margin-left:10px; margin-top:10px">
                                                     <label><input type="checkbox" id="demomode"/> Demo mode (requires save and page refresh)</label>
                                                 </div>
                                                 <div style="margin-left:5px; margin-bottom:5px; margin-top:5px">

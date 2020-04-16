@@ -15,14 +15,14 @@ class Configuration(models.Model):
     id =  models.AutoField(primary_key=True)
     param_name = models.CharField(max_length = 50)
     description = models.CharField(max_length = 150)
-    value = models.FloatField()
+    value = models.CharField(max_length = 50)
     ts = models.DateTimeField(null=True)
 
 class Calibration(models.Model):
     id =  models.AutoField(primary_key=True)
     param_name = models.CharField(max_length = 50)
     description = models.CharField(max_length = 150)
-    value = models.FloatField()
+    value = models.CharField(max_length = 50)
     ts = models.DateTimeField(null=True)
 
 class Diagnostic(models.Model):

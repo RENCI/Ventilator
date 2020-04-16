@@ -81,19 +81,15 @@ class SensorHandler:
     # declare methods that will get sensor data in selected units
     #################
 
-    # demo pressure waveform data, each line is 1 second at a 25% UI duty cycle
+    # demo pressure waveform data, 1 second per line
     demo_pressure_samples: list = [10, 20, 22, 27,
                                    26, 26, 25, 24,
                                    19, 12, 9, 8,
                                    8, 7, 6, 6,
                                    6, 6, 6, 5,
-#                                   5, 5, 5, 5,
-                                   5, 5, 5, 5,
+                                   # 5, 5, 5, 5,
+                                   # 5, 5, 5, 5,
                                    5, 5, 1, 0]
-
-    # the UI is set to sample every 500ms. so divide by two to get the number of seconds
-    # so the respiration/min cycle rate is (60 / (the number of samples / second))
-    demo_cycle_duration: int = int(60 / (len(demo_pressure_samples) / 4))
 
     # get pressure
     def get_pressure(self) -> float:

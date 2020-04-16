@@ -32,6 +32,11 @@ h2 span {
   stroke-width: 1.5px;
 }
 
+.line2 {
+  fill: none;
+  stroke-width: 1.5px;
+}
+
 .x.axis line {
   shape-rendering: auto;
 }

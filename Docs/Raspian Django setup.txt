@@ -25,6 +25,7 @@ Steps to get django running on raspian.
 sequence of events for updating the DB model
 	modify the data model
 	run: manage.py makemigrations
+		command line C:\Users\powen\AppData\Local\Programs\Python\Python38\python.exe C:/Users/powen/PycharmProjects/Ventilator/manage.py
 		optional to see whats going to happen to the DB: manage.py sqlmigrate
 		optional to show whats going to migrate: manage.py showmigrations
 	run: manage.py migrate

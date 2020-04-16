@@ -49,7 +49,7 @@ function saveSetting(table)
     // put in the specific params for this area
     if (table === 'config')
     {
-        qs = qs + 'pressure=' + $('#pressureRange').val() + '~' + 'respiration=' + $('#respirationRange').val() + '~' + 'demomode=' + ($('#demomode').is(":checked") + 0);
+        qs = qs + 'pcirc=' + $('#pCircRange').val() + '~' + 'px=' + $('#pxRange').val() + '~' + 'respiration=' + $('#respirationRange').val() + '~' + 'demomode=' + ($('#demomode').is(":checked") + 0);
         msgTarget = $('#saveConfigMsg');
 
         // show/hide the demo message
@@ -87,30 +87,36 @@ function load_settings()
     // load up the various configuration items
     d3.json('http://localhost:8000/dataReq?type=config', function(error, configData)
     {
-        // The pressure slider handler
-        const pressureValueSpan = $('.pressureValueSpan');
-        const p_value = $('#pressureRange');
-        pressureValueSpan.html(p_value.val());
-        p_value.on('input change', () => {pressureValueSpan.html(p_value.val());});
+        // get the pressure config setting and split it into max/min values
+        val = configData.pcirc.value
+        r = val.split(',')
 
-        // set the initial pressure value
-        p_value.val(configData.pressure.value);
-        pressureValueSpan.html(p_value.val());
+        // load configuration sliders
+        $("#pCircRange").slider({min: -5, max: 50, value: [Number(r[0]), Number(r[1])]});
+        $("#pCircRangeVals").text('(' + $("#pCircRange").slider('getValue') + ')');
+        $("#pCircRange").on("slide", function(slideEvt) { $("#pCircRangeVals").text('(' + slideEvt.value + ')'); });
 
-        // the respiration slider handler
-        const respirationValueSpan = $('.respirationValueSpan');
-        const r_value = $('#respirationRange');
-        respirationValueSpan.html(r_value.val());
-        r_value.on('input change', () => {
-            respirationValueSpan.html(r_value.val());
-        });
+        // get the pressure config setting and split it into max/min values
+        val = configData.px.value
+        r = val.split(',')
 
-        // set the initial respiration value
-        r_value.val(configData.respiration.value);
-        respirationValueSpan.html(r_value.val());
+        // load configuration sliders
+        $("#pxRange").slider({min: -5, max: 50, value: [Number(r[0]), Number(r[1])]});
+        $("#pxRangeVals").text('(' + $("#pxRange").slider('getValue') + ')');
+        $("#pxRange").on("slide", function(slideEvt) { $("#pxRangeVals").text('(' + slideEvt.value + ')'); });
+
+        // get the pressure config setting and split it into max/min values
+        val = configData.respiration.value
+        r = val.split(',')
+
+        $("#respirationRange").slider({min: 0, max: 20, value: [Number(r[0]), Number(r[1])]});
+        $("#respirationRangeVals").text('(' + $("#respirationRange").slider('getValue') + ')');
+        $("#respirationRange").on("slide", function(slideEvt) { $("#respirationRangeVals").text('(' + slideEvt.value + ')'); });
 
         // set the demo mode flag and present the message
         $("#demomode").prop('checked', configData.demomode.value);
+
+        // update the demo message on the ui
         demoMessage();
     });
 
