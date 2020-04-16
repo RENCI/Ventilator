@@ -38,7 +38,7 @@ class SensorHandler:
         self.standard_units: bool = standard_units
 
         # get the calibration reading
-        self.pressure_correction = calib_settings[f'sensor{sensor_number}']['value']
+        self.pressure_correction = float(calib_settings[f'sensor{sensor_number}']['value'])
 
         # list of previous pressure values
         # we fill the array with 0 for the number of samples per second up for a minute

@@ -114,7 +114,7 @@ function load_settings()
         $("#respirationRange").on("slide", function(slideEvt) { $("#respirationRangeVals").text('(' + slideEvt.value + ')'); });
 
         // set the demo mode flag and present the message
-        $("#demomode").prop('checked', configData.demomode.value);
+        $("#demomode").prop('checked', Number(configData.demomode.value));
 
         // update the demo message on the ui
         demoMessage();
