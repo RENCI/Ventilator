@@ -124,22 +124,24 @@ def data_req(request):
                         # get the sensor pressure history data
                         resp_data = sh_pressure.get_pressure_history()
 
-                        # get the last set of pressure data points (up to a minute)
-                        df = pd.DataFrame({'value': resp_data})
+                        # is there any variance in the data
+                        if np.var(resp_data) > 2.0:
+                            # get the last set of pressure data points (up to a minute)
+                            df = pd.DataFrame({'value': resp_data})
 
-                        # find all the local minima over the range of pressure data points
-                        df['loc_min'] = df.value[(df.value.shift(1) > df.value) & (df.value.shift(-1) > df.value)]
+                            # find all the local minima over the range of pressure data points
+                            df['loc_min'] = df.value[(df.value.shift(1) > df.value) & (df.value.shift(-1) > df.value)]
 
-                        # get all points that indicate a minima was found
-                        df['if_A'] = np.where(df['loc_min'].isna(), False, True)
+                            # get all points that indicate a minima was found
+                            df['if_A'] = np.where(df['loc_min'].isna(), False, True)
 
-                        # get the count of mimimums
-                        minima = len(df[df['if_A'] == True])
+                            # get the count of mimimums
+                            minima = len(df[df['if_A'] == True])
 
-                        # if there were minima found
-                        if minima > 0:
-                            # return the count of peaks
-                            sensor_value = ((len(resp_data)/240)*60)/minima
+                            # if there were minima found
+                            if minima > 0:
+                                # return the count of peaks
+                                sensor_value = ((len(resp_data)/240)*60)/minima
                         else:
                             sensor_value = 0
 
