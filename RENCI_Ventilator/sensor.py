@@ -52,7 +52,8 @@ class SensorHandler:
             import adafruit_bmp3xx
 
             # type 0 is the i2c bus for sensor 0
-            if sensor_number == SensorHandler.SENSOR_0:
+            # TODO: this will change when they are all on the I2C bus
+            if sensor_number == SensorHandler.SENSOR_0 or sensor_number == SensorHandler.SENSOR_1:
                 # i2c bus config
                 i2c = busio.I2C(board.SCL, board.SDA)
                 self.bmp = adafruit_bmp3xx.BMP3XX_I2C(i2c)
@@ -100,7 +101,7 @@ class SensorHandler:
             if self.sample_counter >= len(self.demo_pressure_samples):
                 self.sample_counter = 0
 
-            if self.sensor_type == 0:
+            if self.sensor_type == 1:
                 # get the next pressure data point with a little variation
                 ret_val: float = self.demo_pressure_samples[self.sample_counter] + random.randrange(1, 2, 1)
             else:
