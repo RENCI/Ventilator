@@ -1,30 +1,27 @@
 import json
-import random
-import pandas as pd
-import numpy as np
+import pandas as pandas
+import numpy as numpy
 
 from django.shortcuts import render
 from django.http import HttpResponse
-from django.db.models import QuerySet
-from django.core import serializers
-from RENCI_Ventilator.models import Configuration, Calibration, Diagnostic  # , Pressure, Respiration
-from RENCI_Ventilator.utils import run_diagnostic, get_settings
+from RENCI_Ventilator.models import Configuration, Calibration
+from RENCI_Ventilator.utils import get_settings
 from RENCI_Ventilator.sensor import SensorHandler
 
 # init a couple global params for the sensors
-sh_pressure_0 = None
 sh_pressure_1 = None
+sh_pressure_2 = None
 
 
 # main entry point
 def index(request):
-    # create global variables for the devices
-    global sh_pressure_0
+    # get the global variables for the sensor devices
     global sh_pressure_1
+    global sh_pressure_2
 
     # start up the sensor handlers
-    sh_pressure_0 = SensorHandler(SensorHandler.SENSOR_0)
-    sh_pressure_1 = SensorHandler(SensorHandler.SENSOR_1)
+    sh_pressure_1 = SensorHandler(SensorHandler.SENSOR_0)
+    sh_pressure_2 = SensorHandler(SensorHandler.SENSOR_1)
 
     # render the main page
     return render(request, 'RENCI_Ventilator/index.html', {})
@@ -32,6 +29,10 @@ def index(request):
 
 # gets the running instances
 def data_req(request):
+    # get the global variables for the sensor devices
+    global sh_pressure_1
+    global sh_pressure_2
+
     # init the return status
     op_status = 200
 
@@ -58,16 +59,14 @@ def data_req(request):
         # config details need a parameter
         elif req_type == 'diags':
             # start the diagnostics, this will insert records into the database
-            group_number = run_diagnostic()
+            sh_pressure_0 = SensorHandler(0)
 
-            # get the data from the database
-            diag_items: QuerySet = Diagnostic.objects.filter(grouping=group_number)
-
-            # convert the query set into json
-            ret_val = serializers.serialize('json', diag_items)
+            sh0_test = sh_pressure_0.get_diagnostics()
+            sh1_test = sh_pressure_1.get_diagnostics()
+            sh2_test = sh_pressure_2.get_diagnostics()
 
             # convert the json to a string for posting back
-            ret_val = json.loads(ret_val)
+            ret_val = f'{sh0_test}\n{sh1_test}\n{sh2_test}\n'
 
         # update a configuration or calibration entry
         elif req_type == 'update':
@@ -118,27 +117,25 @@ def data_req(request):
             # we only expect either of the two types
             if param in legal_params:
                 try:
-                    global sh_pressure_0
-                    global sh_pressure_1
-
-                    # get the correct sensor
+                    # param 2 means get the pressure sensor data for the 2 sensors
                     if param == '2':
                         # get the pressure data
-                        sensor_value = [sh_pressure_0.get_pressure(), sh_pressure_1.get_pressure()]
+                        sensor_value = [sh_pressure_1.get_pressure(), sh_pressure_2.get_pressure()]
+                    # param 1 gets the respiration data
                     else:
                         # get the sensor pressure history data
-                        resp_data = sh_pressure_0.get_pressure_history()
+                        resp_data = sh_pressure_1.get_pressure_history()
 
                         # if there no variance in the data it must be a flat line
-                        if np.var(resp_data) > 2.0:
+                        if numpy.var(resp_data) > 1.0:
                             # get the last set of pressure data points (up to a minute)
-                            df = pd.DataFrame({'value': resp_data})
+                            df = pandas.DataFrame({'value': resp_data})
 
                             # find all the local minimums over the range of pressure data points
                             df['loc_min'] = df.value[(df.value.shift(1) < df.value) & (df.value.shift(-1) < df.value)]
 
                             # get all points that indicate a minimum was found
-                            df['if_min'] = np.where(df['loc_min'].isna(), False, True)
+                            df['if_min'] = numpy.where(df['loc_min'].isna(), False, True)
 
                             # get the count of mimimums (breating rate)
                             sensor_value = len(df[df['if_min'] == True])
@@ -146,8 +143,10 @@ def data_req(request):
                             # if there were minima found
                             if sensor_value <= 0:
                                 sensor_value = 0
+                            # max out at 20
                             elif sensor_value > 20:
                                 sensor_value = 20
+                        # must be a flat line
                         else:
                             sensor_value = 0
 
@@ -155,7 +154,7 @@ def data_req(request):
                     ret_val = sensor_value
 
                 except Exception as e:
-                    ret_val = 'Exception'
+                    ret_val = f'Exception: {e}'
                     op_status = 500
             else:
                 ret_val = 'Invalid or missing event param.'

@@ -9,6 +9,7 @@ class SensorHandler:
     # define sensor number constants
     SENSOR_0: int = 0
     SENSOR_1: int = 1
+    SENSOR_2: int = 2
 
     # debug class that simulates the real sensor
     class DebugBmp:
@@ -38,7 +39,7 @@ class SensorHandler:
         self.standard_units: bool = standard_units
 
         # get the calibration reading
-        self.pressure_correction = float(calib_settings[f'sensor{sensor_number}']['value'])
+        self.pressure_correction = float(calib_settings[f'sensor0']['value'])
 
         # list of previous pressure values
         # we fill the array with 0 for the number of samples per second up for a minute
@@ -72,10 +73,10 @@ class SensorHandler:
         self.bmp.temperature_oversampling = 2
         self.bmp.sea_level_pressure = sea_level_pressure
 
-    @staticmethod
-    def diagnostics():
-        # TODO: return the result of diagnostics
-        return True
+    # returns the results of the sensor readings
+    def get_diagnostics(self):
+        # return the readings of the sensor
+        return f'Sensor: {self.sensor_type}, Pressure: {self.get_psi_pressure()} (psi), Altitude:{self.get_altitude_feet()}ft'
 
     #################
     # declare methods that will get sensor data in selected units
@@ -86,7 +87,7 @@ class SensorHandler:
                                    26, 26, 25, 24,
                                    19, 12, 9, 8,
                                    8, 7, 6, 6,
-                                   # 6, 6, 6, 5,
+                                   6, 6, 6, 5,
                                    # 5, 5, 5, 5,
                                    # 5, 5, 5, 5,
                                    5, 5, 1, 0]

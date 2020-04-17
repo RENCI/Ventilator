@@ -11,7 +11,7 @@ function sendDiagRequest()
         let control = $('#diagnosticResults');
 
         // start the tests
-        let msg = 'Diagnostics initiated, Please wait...';
+        let msg = 'Diagnostics initiated, Please wait...\n';
 
         // set the message
         control.val(msg);
@@ -19,20 +19,15 @@ function sendDiagRequest()
         // did we get some valid data
         if(error == null && diagData.length > 0)
         {
-            // loop through the data
-            diagData.forEach(
-                // for each item returned
-                function(item) {
-                    msg = msg + '\n' + item.fields.ts + ' - test:' + item.fields.test_name + ', description:' + item.fields.description + ', result:' + item.fields.result;
-                }
-            );
-
-            // send out the final message
-            control.val(msg);
+            // load up what was returned from the sensors
+            msg = msg + diagData;
         }
         // send out an error message
         else
-            control.val(msg + '\n Error performing diagnostics.');
+            msg = msg + '\n Error performing diagnostics.';
+
+        // send out the final message
+        control.val(msg + '\nDiagnostics complete.');
     });
 }
 
@@ -57,7 +52,7 @@ function saveSetting(table)
     }
     else
     {
-        qs = qs + 'sensor0=' + $('#sensor0Range').val() + '~' + 'sensor1=' + $('#sensor1Range').val();
+        qs = qs + 'sensor0=' + $('#sensor0Range').val();
         msgTarget = $('#saveCalibMsg');
     }
 
@@ -134,19 +129,6 @@ function load_settings()
         // set the initial sensor 1 value
         s0_value.val(calibData.sensor0.value);
         sensor0ValueSpan.html(s0_value.val());
-
-        // the sensor 1 slider handler
-        const sensor1ValueSpan = $('.sensor1ValueSpan');
-        const s1_value = $('#sensor1Range');
-        sensor1ValueSpan.html(s1_value.val());
-        s1_value.on('input change', () => {
-            sensor1ValueSpan.html(s1_value.val());
-
-        });
-
-        // set the initial sensor 1 value
-        s1_value.val(calibData.sensor1.value);
-        sensor1ValueSpan.html(s1_value.val());
     });
 }
 
