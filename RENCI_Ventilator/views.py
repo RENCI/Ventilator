@@ -20,8 +20,8 @@ def index(request):
     global sh_pressure_2
 
     # start up the sensor handlers
-    sh_pressure_1 = SensorHandler(SensorHandler.SENSOR_0)
-    sh_pressure_2 = SensorHandler(SensorHandler.SENSOR_1)
+    sh_pressure_1 = SensorHandler(SensorHandler.SENSOR_1)
+    sh_pressure_2 = SensorHandler(SensorHandler.SENSOR_2)
 
     # render the main page
     return render(request, 'RENCI_Ventilator/index.html', {})
