@@ -66,7 +66,7 @@ def data_req(request):
             sh2_test = sh_pressure_2.get_diagnostics()
 
             # convert the json to a string for posting back
-            ret_val = f'\n{sh0_test}\n{sh1_test}\n{sh2_test}'
+            ret_val = f'{sh0_test}\n{sh1_test}\n{sh2_test}'
 
         # update a configuration or calibration entry
         elif req_type == 'update':
