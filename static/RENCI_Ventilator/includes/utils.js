@@ -20,7 +20,7 @@ function sendDiagRequest()
         if(error == null && diagData.length > 0)
         {
             // load up what was returned from the sensors
-            msg = msg + diagData;
+            msg = msg + '\n' + diagData;
         }
         // send out an error message
         else
