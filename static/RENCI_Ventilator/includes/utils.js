@@ -11,7 +11,7 @@ function sendDiagRequest()
         let control = $('#diagnosticResults');
 
         // start the tests
-        let msg = 'Diagnostics initiated, Please wait...\n';
+        let msg = 'Diagnostics initiated, Please wait...';
 
         // set the message
         control.val(msg);
@@ -24,7 +24,7 @@ function sendDiagRequest()
         }
         // send out an error message
         else
-            msg = msg + '\n Error performing diagnostics.';
+            msg = msg + '\nError performing diagnostics.';
 
         // send out the final message
         control.val(msg + '\nDiagnostics complete.');
