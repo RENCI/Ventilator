@@ -52,7 +52,7 @@ class SensorHandler:
             import adafruit_bmp3xx
 
             # are we accessing the I2C bus
-            if sensor_number == SensorHandler.SENSOR_0 or sensor_number == SensorHandler.SENSOR_1:
+            if sensor_number == SensorHandler.SENSOR_1 or sensor_number == SensorHandler.SENSOR_2:
                 # init the device address
                 device_addr = 0
 
