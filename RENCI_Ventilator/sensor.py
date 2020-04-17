@@ -60,20 +60,22 @@ class SensorHandler:
                 i2c = busio.I2C(board.SCL, board.SDA)
 
                 # type 0 is the i2c bus for sensor 0
-                if sensor_number == SensorHandler.SENSOR_0:
+                if sensor_number == SensorHandler.SENSOR_1:
                     device_addr = 0x76
-                elif sensor_number == SensorHandler.SENSOR_1:
+                elif sensor_number == SensorHandler.SENSOR_2:
                     device_addr = 0x77
 
                 self.bmp = adafruit_bmp3xx.BMP3XX_I2C(i2c, device_addr)
             # else we are setting up SPI for sensor 1
             else:
-                import digitalio
-
-                # spi bus config
-                spi = busio.SPI(board.SCK, board.MOSI, board.MISO)
-                cs = digitalio.DigitalInOut(board.D5)
-                self.bmp = adafruit_bmp3xx.BMP3XX_SPI(spi, cs)
+                self.bmp = self.DebugBmp()
+                #
+                # import digitalio
+                #
+                # # spi bus config
+                # spi = busio.SPI(board.SCK, board.MOSI, board.MISO)
+                # cs = digitalio.DigitalInOut(board.D5)
+                # self.bmp = adafruit_bmp3xx.BMP3XX_SPI(spi, cs)
         else:
             # load up the demo bmp emulator
             self.bmp = self.DebugBmp()
