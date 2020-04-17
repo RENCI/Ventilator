@@ -88,7 +88,7 @@ class SensorHandler:
     # returns the results of the sensor readings
     def get_diagnostics(self):
         # return the readings of the sensor
-        return f'Sensor: {self.sensor_type}, Pressure: {self.get_psi_pressure()} (psi), Altitude:{self.get_altitude_feet()}ft'
+        return f'Sensor: {self.sensor_type}, Pressure: {self.get_psi_pressure()} (psi), Altitude:{self.get_altitude()} (ft), Temperature:{self.get_temperature()} (F)'
 
     #################
     # declare methods that will get sensor data in selected units
