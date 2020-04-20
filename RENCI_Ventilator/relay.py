@@ -3,6 +3,7 @@ from time import sleep
 from .utils import get_settings
 from .models import Configuration
 
+
 # provides access to demo or real relay data
 class RelayHandler:
     # define relay number constants to the physical GPIO pin on the RPi
@@ -27,7 +28,8 @@ class RelayHandler:
         GPIO.setup(RelayHandler.RELAY_3, GPIO.OUT)
         GPIO.setup(RelayHandler.RELAY_4, GPIO.OUT)
 
-    def toggle_relay(self, relay_num: int, duration: int):
+    @staticmethod
+    def toggle_relay(relay_num: int, duration: int):
         GPIO.output(relay_num, GPIO.HIGH)
         print(f'RELAY {relay_num}: OFF')
 
@@ -40,13 +42,8 @@ class RelayHandler:
         print(f'RELAY {relay_num}: OFF')
 
     def diags(self):
-        while (1):
+        while 1:
             self.toggle_relay(RelayHandler.RELAY_1, 2)
             self.toggle_relay(RelayHandler.RELAY_2, 2)
             self.toggle_relay(RelayHandler.RELAY_3, 2)
             self.toggle_relay(RelayHandler.RELAY_4, 2)
-
-if __name__ == '__main__':
-    rh = RelayHandler
-
-    rh.diags()
