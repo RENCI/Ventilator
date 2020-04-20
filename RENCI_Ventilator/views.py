@@ -7,6 +7,7 @@ from django.http import HttpResponse
 from RENCI_Ventilator.models import Configuration, Calibration
 from RENCI_Ventilator.utils import get_settings
 from RENCI_Ventilator.sensor import SensorHandler
+from RENCI_Ventilator.relay import RelayHandler
 
 # init a couple global params for the sensors
 sh_pressure_1 = None
@@ -64,6 +65,9 @@ def data_req(request):
             sh0_test = sh_pressure_0.get_diagnostics()
             sh1_test = sh_pressure_1.get_diagnostics()
             sh2_test = sh_pressure_2.get_diagnostics()
+
+            rh = RelayHandler()
+            rh.get_diagnostics()
 
             # convert the json to a string for posting back
             ret_val = f'{sh0_test}\n{sh1_test}\n{sh2_test}'
@@ -137,7 +141,7 @@ def data_req(request):
                             # get all points that indicate a minimum was found
                             df['if_min'] = numpy.where(df['loc_min'].isna(), False, True)
 
-                            # get the count of mimimums (breating rate)
+                            # get the count of mimimum (breathing rate)
                             sensor_value = len(df[df['if_min'] == True])
 
                             # if there were minima found
