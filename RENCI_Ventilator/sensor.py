@@ -1,7 +1,6 @@
 import random
-from RENCI_Ventilator.utils import get_settings
-from RENCI_Ventilator.models import Configuration
-from RENCI_Ventilator.models import Calibration
+from .utils import get_settings
+from .models import Configuration, Calibration
 
 
 # provides access to demo or real sensor data

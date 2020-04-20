@@ -1,7 +1,7 @@
 import RPi.GPIO as GPIO
 from time import sleep
-from RENCI_Ventilator.utils import get_settings
-from RENCI_Ventilator.models import Configuration
+from .utils import get_settings
+from .models import Configuration
 
 # provides access to demo or real relay data
 class RelayHandler:
