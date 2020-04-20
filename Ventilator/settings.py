@@ -42,7 +42,7 @@ LOGGING = {
     },
     'loggers': {
         'django': {
-            'handlers': ['console'],
+            'handlers': ['file'],
             'level': os.getenv('DJANGO_LOG_LEVEL', 'WARNING'),
             'propagate': False,
         },
