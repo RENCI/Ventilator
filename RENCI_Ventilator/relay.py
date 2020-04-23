@@ -20,8 +20,12 @@ class RelayHandler:
         def setup(val1: int, val2: int):
             return None
 
-        @ staticmethod
+        @staticmethod
         def output(val: int, val2: int):
+            return None
+
+        @staticmethod
+        def cleanup():
             return None
 
     # define relay number constants to the physical GPIO pin on the RPi
@@ -45,6 +49,7 @@ class RelayHandler:
 
         # to use Raspberry Pi board pin numbers
         self.relay_handle.setmode(self.relay_handle.BOARD)
+        print(self.relay_handle.BOARD)
 
         # set up the GPIO channels
         self.relay_handle.setup(RelayHandler.RELAY_1, self.relay_handle.OUT)
